@@ -5,16 +5,17 @@ import { Injectable } from '@angular/core';
 import { ipcRenderer, webFrame } from 'electron';
 import * as childProcess from 'child_process';
 import * as fs from 'fs';
+import * as electron1 from 'electron';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class ElectronService {
   ipcRenderer!: typeof ipcRenderer;
   webFrame!: typeof webFrame;
   childProcess!: typeof childProcess;
   fs!: typeof fs;
-
+  electron!: typeof electron1;
   constructor() {
     // Conditional imports
     if (this.isElectron) {
@@ -22,6 +23,7 @@ export class ElectronService {
       this.webFrame = (window as any).require('electron').webFrame;
 
       this.fs = (window as any).require('fs');
+      this.electron = window.require('electron');
 
       this.childProcess = (window as any).require('child_process');
       this.childProcess.exec('node -v', (error, stdout, stderr) => {
@@ -49,8 +51,11 @@ export class ElectronService {
       // https://www.electronjs.org/docs/latest/api/ipc-renderer#ipcrendererinvokechannel-args
     }
   }
-
+  get platform(): platform {
+    return (window as any).process.platform
+  }
   get isElectron(): boolean {
     return !!(window && window.process && window.process.type);
   }
 }
+type platform = "win32" | "linux"

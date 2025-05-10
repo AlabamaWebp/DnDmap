@@ -20,12 +20,15 @@ function createWindow(): BrowserWindow {
       nodeIntegration: true,
       allowRunningInsecureContent: (serve),
       contextIsolation: false,
+      webSecurity: false,
+      // preload: path.join(__dirname, 'preload.js')
     },
   });
 
   if (serve) {
-    const debug = require('electron-debug');
-    debug();
+
+    // const debug = require('electron-debug');
+    // debug();
 
     require('electron-reloader')(module);
     win.loadURL('http://localhost:4200');
@@ -58,7 +61,7 @@ try {
   // initialization and is ready to create browser windows.
   // Some APIs can only be used after this event occurs.
   // Added 400 ms to fix the black background issue while using transparent window. More detais at https://github.com/electron/electron/issues/15947
-  app.on('ready', () => setTimeout(createWindow, 400));
+  app.on('ready', () => setTimeout(createWindow, 1));
 
   // Quit when all windows are closed.
   app.on('window-all-closed', () => {
