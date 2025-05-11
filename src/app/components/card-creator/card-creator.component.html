@@ -1,4 +1,28 @@
-<canvas id="canvas" width="1000" height="800"></canvas>
+<canvas
+  id="canvas1"
+  [width]="width"
+  [height]="height"
+  class="canvas1"
+  (mousedown)="canvClick($event)"
+  (mouseup)="canvUnclick()"
+  (mousemove)="canvMove($event)"
+></canvas>
 <br />
 <button (click)="onAddImage()">Добавить картинку</button>
-<input type="file" id="fileInput" style="display: none" (change)="onFileSelected($event)" />
+<input
+  type="file"
+  id="fileInput"
+  style="display: none"
+  (change)="onFileSelected($event)"
+/>
+<br />
+<mat-slider
+  min="10"
+  max="100"
+  step="1"
+  showTickMarks
+  discrete
+  (input)="updateCanvasGrid()"
+  ><input matSliderThumb [(ngModel)]="gridSize" />
+</mat-slider>
+<p>Размер сетки: {{ gridSize }}</p>

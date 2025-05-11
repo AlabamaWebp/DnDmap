@@ -1,56 +1,89 @@
-import { Component } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  HostListener,
+  ViewChild,
+} from '@angular/core';
 import { ElectronService } from '../../shared/services/electron.service';
 import { ImageFilesService } from '../../shared/services/image-files.service';
+import { MatSliderModule } from '@angular/material/slider';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-card-creator',
-  imports: [],
+  imports: [MatSliderModule, FormsModule],
   templateUrl: './card-creator.component.html',
   styleUrl: './card-creator.component.scss',
 })
 export class CardCreatorComponent {
+  gridSize = 80; // Размер сетки по умолчанию
+  lineWidth = 1; // Ширина линий по умолчанию
+  x = 0.5;
+  y = 0.5;
+  width = 0;
+  height = 0;
+  canvas!: HTMLCanvasElement;
+  ctx!: CanvasRenderingContext2D;
+  img!: HTMLImageElement;
+  clickedX = 0;
+  clickedY = 0;
+  isClicked = false;
+
   constructor(
     private elec: ElectronService,
-    private files: ImageFilesService
+    private files: ImageFilesService,
+    private cdr: ChangeDetectorRef
   ) {}
 
   ngOnInit() {
     console.log(this.elec.platform);
-    this.canvasWork();
+    this.canvas = document.querySelector('#canvas1') as HTMLCanvasElement;
+    this.ctx = this.canvas.getContext('2d')!;
+    // this.ctx.strokeStyle = 'black'; // Цвет линии
+    this.canvasInit();
   }
 
-  canvasWork(imageSrc?: string) {
-    const canvas = document.getElementById('canvas') as HTMLCanvasElement;
-    const ctx = canvas.getContext('2d')!;
-    const img = new Image();
+  canvasInit(imageSrc?: string) {
+    this.img = new Image();
 
-    img.src = imageSrc || '/default/path/to/image.jpg'; // Путь по умолчанию
+    this.img.src = imageSrc || this.files.path + this.files.folders[0]; // Путь по умолчанию
 
-    img.onload = function () {
-      ctx.clearRect(0, 0, canvas.width, canvas.height); // Очистка canvas
-      ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+    this.img.onload = () => {
+      this.width = this.img.width;
+      this.height = this.img.height;
+      this.cdr.detectChanges();
 
-      // Настройки сетки
-      const step = 20; // размер ячейки сетки в пикселях
-      ctx.strokeStyle = 'rgba(0,0,0,0.5)'; // цвет и прозрачность линий
-      ctx.lineWidth = 1;
-
-      // Рисуем вертикальные линии
-      for (let x = 0.5; x < canvas.width; x += step) {
-        ctx.beginPath();
-        ctx.moveTo(x, 0);
-        ctx.lineTo(x, canvas.height);
-        ctx.stroke();
-      }
-
-      // Рисуем горизонтальные линии
-      for (let y = 0.5; y < canvas.height; y += step) {
-        ctx.beginPath();
-        ctx.moveTo(0, y);
-        ctx.lineTo(canvas.width, y);
-        ctx.stroke();
-      }
+      this.drawGrid(); // Рисуем сетку
     };
+  }
+
+  drawGrid() {
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height); // Очистка this.canvas
+    this.ctx.drawImage(this.img, 0, 0, this.width, this.height);
+    this.ctx.strokeStyle = 'rgba(0,0,0,0.5)'; // Цвет и прозрачность линий
+    this.ctx.lineWidth = 1;
+    // Рисуем вертикальные линии
+    for (let x = this.x; x < this.width; x += this.gridSize) {
+      this.ctx.beginPath();
+      this.ctx.lineWidth = this.lineWidth;
+      this.ctx.strokeStyle = 'black';
+      this.ctx.moveTo(x, 0);
+      this.ctx.lineTo(x, this.height);
+      this.ctx.stroke();
+    }
+    // Рисуем горизонтальные линии
+    for (let y = this.y; y < this.height; y += this.gridSize) {
+      this.ctx.beginPath();
+      this.ctx.lineWidth = this.lineWidth;
+      this.ctx.strokeStyle = 'black';
+      this.ctx.moveTo(0, y);
+      this.ctx.lineTo(this.width, y);
+      this.ctx.stroke();
+    }
+  }
+
+  updateCanvasGrid() {
+    this.drawGrid(); // Перерисовка сетки с новым размером
   }
 
   onAddImage() {
@@ -64,9 +97,10 @@ export class CardCreatorComponent {
       const file = input.files[0];
       const reader = new FileReader();
 
-      reader.onload = async() => {
+      reader.onload = async () => {
         const imageSrc = reader.result as string;
-        this.canvasWork(imageSrc); // Обновляем canvas
+        this.canvasInit(imageSrc); // Обновляем canvas
+
         this.saveImagePath(file.name, Buffer.from(await file.arrayBuffer())); // Сохраняем путь
       };
 
@@ -85,5 +119,40 @@ export class CardCreatorComponent {
     });
     console.log(`Saving image path: ${fullPath}`);
     // Здесь можно добавить логику для сохранения пути в сервисе
+  }
+
+  canvClick(event: MouseEvent) {
+    const rect = this.canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    this.clickedX = x;
+    this.clickedY = y;
+    this.isClicked = true;
+  }
+  canvUnclick() {
+    this.clickedX = -1;
+    this.clickedY = -1;
+    this.isClicked = false;
+  }
+  canvMove(event: MouseEvent) {
+    if (this.isClicked) {
+      const rect = this.canvas.getBoundingClientRect();
+      console.log(event.clientX, event.clientY);
+      const x = event.clientX - rect.left;
+      const y = event.clientY - rect.top;
+      const dx = this.clickedX - x;
+      if (dx > 0) {
+        this.x = this.gridSize - (dx % this.gridSize);
+      } else {
+        this.x = Math.abs(this.clickedX - x) % this.gridSize;
+      }
+      const dy = this.clickedY - y;
+      if (dy > 0) {
+        this.y = this.gridSize - (dy % this.gridSize);
+      } else {
+        this.y = Math.abs(this.clickedY - y) % this.gridSize;
+      }
+      this.drawGrid();
+    }
   }
 }
