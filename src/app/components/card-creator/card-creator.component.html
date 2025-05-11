@@ -1,28 +1,42 @@
-<canvas
-  id="canvas1"
-  [width]="width"
-  [height]="height"
-  class="canvas1"
-  (mousedown)="canvClick($event)"
-  (mouseup)="canvUnclick()"
-  (mousemove)="canvMove($event)"
-></canvas>
-<br />
-<button (click)="onAddImage()">Добавить картинку</button>
-<input
-  type="file"
-  id="fileInput"
-  style="display: none"
-  (change)="onFileSelected($event)"
-/>
-<br />
-<mat-slider
-  min="10"
-  max="100"
-  step="1"
-  showTickMarks
-  discrete
-  (input)="updateCanvasGrid()"
-  ><input matSliderThumb [(ngModel)]="gridSize" />
-</mat-slider>
-<p>Размер сетки: {{ gridSize }}</p>
+<div class="wrapper">
+  <canvas
+    id="canvas1"
+    class="canvas1"
+    (mousedown)="canvClick($event)"
+    (mousemove)="canvMove($event)"
+    [width]="width"
+    [height]="height"
+  ></canvas>
+  <div class="params">
+    <!-- <button mat-button (click)="onAddImage()">Добавить картинку</button> -->
+    <input
+      type="file"
+      id="fileInput"
+      style="display: none"
+      (change)="onFileSelected($event)"
+    />
+
+    <mat-form-field>
+      <mat-label>Одна клетка</mat-label>
+      <mat-select value="5" (valueChange)="size = $event; test($event)">
+        <mat-option value="5">5 футов</mat-option>
+        <mat-option value="10">10 футов</mat-option>
+      </mat-select>
+    </mat-form-field>
+
+    <span>
+      <mat-slider
+        min="10"
+        max="100"
+        step="1"
+        showTickMarks
+        discrete
+        (input)="updateCanvasGrid()"
+        ><input matSliderThumb [(ngModel)]="gridSize" />
+      </mat-slider>
+      {{ gridSize }}px
+    </span>
+
+    <button mat-button (click)="saveAll()">Сохранить</button>
+  </div>
+</div>
