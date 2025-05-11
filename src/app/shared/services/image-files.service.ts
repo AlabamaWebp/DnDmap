@@ -6,9 +6,12 @@ import { ElectronService } from './electron.service';
 })
 export class ImageFilesService {
   constructor(private elec: ElectronService) {
-    elec.fs.mkdirSync(this.path);
+    elec.fs.mkdirSync(this.path, { recursive: true });
     this.folders = elec.fs.readdirSync(this.path);
   }
+  saveImage(image: string, name: string) {
+    
+  }
   folders!: string[];
-  private path = 'C:/pricol/';
+  public path = 'C:/pricol/'; // Путь для сохранения изображений
 }
