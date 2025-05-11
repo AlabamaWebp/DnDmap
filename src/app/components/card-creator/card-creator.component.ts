@@ -46,13 +46,27 @@ export class CardCreatorComponent {
   ngOnInit() {
     this.canvas = document.querySelector('#canvas1') as HTMLCanvasElement;
     this.ctx = this.canvas.getContext('2d')!;
+    this.loadJson();
     this.canvasInit();
+  }
+
+  loadJson() {
+    const data = JSON.parse(
+      this.elec.fs
+        .readFileSync(this.files.path + this.files.jsons[0])
+        .toString()
+    );
+    const vars = ['gridSize', 'lineWidth', 'x', 'y', 'width', 'height', 'size'];
+    const t: any = this;
+    for (const e of vars) {
+      t[e] = data[e];
+    }
   }
 
   canvasInit(imageSrc?: string) {
     this.img = new Image();
     this.img.src = imageSrc || this.files.path + this.files.images[0]; // Путь по умолчанию
-    this.name = this.files.images[0].split(".").slice(0, -1).join(".");
+    this.name = this.files.images[0].split('.').slice(0, -1).join('.');
     this.img.onload = () => {
       // this.width = this.canvas.clientWidth;
       // this.height = this.canvas.clientHeight;
@@ -178,18 +192,25 @@ export class CardCreatorComponent {
   }
 
   get dataToSave() {
-    return JSON.stringify({
-      gridSize: this.gridSize,
-      lineWidth: this.lineWidth,
-      x: this.x,
-      y: this.y,
-      width: this.width,
-      height: this.height,
-      size: Number(this.size)
-    }, null, 4);
+    return JSON.stringify(
+      {
+        gridSize: this.gridSize,
+        lineWidth: this.lineWidth,
+        x: this.x,
+        y: this.y,
+        width: this.width,
+        height: this.height,
+        size: Number(this.size),
+      },
+      null,
+      4
+    );
   }
   saveAll() {
-    this.elec.fs.writeFileSync(this.files.path + this.name + ".json", this.dataToSave);
+    this.elec.fs.writeFileSync(
+      this.files.path + this.name + '.json',
+      this.dataToSave
+    );
   }
   test(t: any) {
     console.log(t);
