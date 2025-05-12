@@ -47,7 +47,7 @@ export class CardCreatorComponent {
     private elec: ElectronService,
     private files: ImageFilesService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.canvas = document.querySelector('#canvas1') as HTMLCanvasElement;
@@ -57,6 +57,7 @@ export class CardCreatorComponent {
   }
 
   loadJson() {
+    if (!this.files.jsons[0]) return;
     const data = JSON.parse(
       this.elec.fs
         .readFileSync(this.files.path + this.files.jsons[0])
@@ -70,8 +71,9 @@ export class CardCreatorComponent {
   }
 
   canvasInit(imageSrc?: string) {
+    // const test = this.elec.fs.readFileSync("")
     this.img = new Image();
-    this.img.src = imageSrc || this.files.path + this.files.images[0]; // Путь по умолчанию
+    this.img.src = "file://" + (imageSrc || this.files.path + this.files.images[0]); // Путь по умолчанию
     this.name = this.files.images[0].split('.').slice(0, -1).join('.');
     this.img.onload = () => {
       // this.width = this.canvas.clientWidth;

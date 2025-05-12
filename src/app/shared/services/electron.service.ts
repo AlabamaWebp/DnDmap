@@ -6,6 +6,7 @@ import { ipcRenderer, webFrame } from 'electron';
 import * as childProcess from 'child_process';
 import * as fs from 'fs';
 import * as electron1 from 'electron';
+import * as path from "path"
 
 @Injectable({
   providedIn: 'root',
@@ -16,6 +17,7 @@ export class ElectronService {
   childProcess!: typeof childProcess;
   fs!: typeof fs;
   electron!: typeof electron1;
+  path!: typeof path;
   constructor() {
     // Conditional imports
     if (this.isElectron) {
@@ -23,6 +25,7 @@ export class ElectronService {
       this.webFrame = (window as any).require('electron').webFrame;
 
       this.fs = (window as any).require('fs');
+      this.path = (window as any).require('path');
       this.electron = window.require('electron');
 
       this.childProcess = (window as any).require('child_process');
