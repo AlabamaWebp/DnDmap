@@ -7,6 +7,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
 
 @Component({
   selector: 'app-card-creator',
@@ -17,6 +18,7 @@ import { MatFormFieldModule } from '@angular/material/form-field';
     MatFormFieldModule,
     MatInputModule,
     MatSelectModule,
+    MatButtonToggleModule,
   ],
   templateUrl: './card-creator.component.html',
   styleUrl: './card-creator.component.scss',
@@ -26,8 +28,8 @@ export class CardCreatorComponent {
   lineWidth = 1; // Ширина линий по умолчанию
   x = 0.5;
   y = 0.5;
-  width = document.documentElement.clientWidth - 300;
-  height = document.documentElement.clientHeight;
+  width1 = document.documentElement.clientWidth - 300;
+  height1 = document.documentElement.clientHeight;
   canvas!: HTMLCanvasElement;
   ctx!: CanvasRenderingContext2D;
   img!: HTMLImageElement;
@@ -36,6 +38,10 @@ export class CardCreatorComponent {
   isClicked = false;
   size = 5;
   name!: string;
+  type: 'Сетка' | 'Туман' = 'Туман';
+  tyman: tyman[] = [];
+  current_tyman = this.tyman;
+  tmp_tyman?: () => void;
 
   constructor(
     private elec: ElectronService,
@@ -80,12 +86,9 @@ export class CardCreatorComponent {
 
   drawGrid() {
     let scale = Math.min(
-      this.width / this.img.width
+      this.width1 / this.img.width
       // this.height / this.img.height
     );
-    // console.log(this.width, this.img.width);
-    // this.height = Math.floor(this.img.height * scale);
-    this.cdr.detectChanges();
     this.ctx.clearRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight); // Очистка this.canvas
     this.ctx.drawImage(
       this.img,
@@ -93,25 +96,25 @@ export class CardCreatorComponent {
       0,
       this.img.width * scale,
       this.img.height * scale
-      // this.height
     );
 
     this.ctx.strokeStyle = 'rgba(0,0,0,0.8)'; // Цвет и прозрачность линий
     this.ctx.lineWidth = this.lineWidth;
     // Рисуем вертикальные линии
-    for (let x = this.x; x < this.width; x += this.gridSize) {
+    for (let x = this.x; x < this.width1; x += this.gridSize) {
       this.ctx.beginPath();
       this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, this.height);
+      this.ctx.lineTo(x, this.height1);
       this.ctx.stroke();
     }
     // Рисуем горизонтальные линии
-    for (let y = this.y; y < this.height; y += this.gridSize) {
+    for (let y = this.y; y < this.height1; y += this.gridSize) {
       this.ctx.beginPath();
       this.ctx.moveTo(0, y);
-      this.ctx.lineTo(this.width, y);
+      this.ctx.lineTo(this.width1, y);
       this.ctx.stroke();
     }
+    this.tmp_tyman?.();
   }
 
   updateCanvasGrid() {
@@ -169,25 +172,43 @@ export class CardCreatorComponent {
     this.clickedX = -1;
     this.clickedY = -1;
     this.isClicked = false;
+    this.tmp_tyman = undefined;
   }
   canvMove(event: MouseEvent) {
     if (this.isClicked) {
       const rect = this.canvas.getBoundingClientRect();
-      const x = event.clientX - rect.left;
+      const x = event.x - rect.left;
       const y = event.clientY - rect.top;
-      const dx = this.clickedX - x;
-      if (dx > 0) {
-        this.x = this.gridSize - (dx % this.gridSize);
-      } else {
-        this.x = Math.abs(this.clickedX - x) % this.gridSize;
-      }
-      const dy = this.clickedY - y;
-      if (dy > 0) {
-        this.y = this.gridSize - (dy % this.gridSize);
-      } else {
-        this.y = Math.abs(this.clickedY - y) % this.gridSize;
-      }
+      if (this.type == 'Сетка') this.gridMove(x, y);
+      else if (this.type == 'Туман') this.tymanCreate(x, y);
       this.drawGrid();
+    }
+  }
+
+  tymanCreate(x: number, y: number) {
+    this.tmp_tyman = () => {
+      this.ctx.fillStyle = 'rgb(0 0 0 / 50%)';
+      this.ctx.fillRect(
+        this.clickedX,
+        this.clickedY,
+        Math.floor(x - this.clickedX),
+        Math.floor(y - this.clickedY)
+      );
+    };
+  }
+
+  gridMove(x: number, y: number) {
+    const dx = this.clickedX - x;
+    if (dx > 0) {
+      this.x = this.gridSize - (dx % this.gridSize);
+    } else {
+      this.x = Math.abs(this.clickedX - x) % this.gridSize;
+    }
+    const dy = this.clickedY - y;
+    if (dy > 0) {
+      this.y = this.gridSize - (dy % this.gridSize);
+    } else {
+      this.y = Math.abs(this.clickedY - y) % this.gridSize;
     }
   }
 
@@ -198,8 +219,8 @@ export class CardCreatorComponent {
         lineWidth: this.lineWidth,
         x: this.x,
         y: this.y,
-        width: this.width,
-        height: this.height,
+        width: this.width1,
+        height: this.height1,
         size: Number(this.size),
       },
       null,
@@ -215,4 +236,8 @@ export class CardCreatorComponent {
   test(t: any) {
     console.log(t);
   }
+}
+interface tyman {
+  id: string
+  func: () => void
 }

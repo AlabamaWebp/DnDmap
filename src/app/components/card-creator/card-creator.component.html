@@ -4,8 +4,8 @@
     class="canvas1"
     (mousedown)="canvClick($event)"
     (mousemove)="canvMove($event)"
-    [width]="width"
-    [height]="height"
+    [width]="width1"
+    [height]="height1"
   ></canvas>
   <div class="params">
     <div class="flexwrap">
@@ -37,9 +37,15 @@
         {{ gridSize }}px
       </span>
 
-      <button mat-button (click)="saveAll()">Сохранить</button>
+
     </div>
-    <!-- <div class="flexwrap">
-    </div> -->
+    <div class="flexwrap">
+      <mat-button-toggle-group [(ngModel)]="type">
+          <mat-button-toggle value="Сетка">Сетка</mat-button-toggle>
+          <mat-button-toggle value="Туман">Туман</mat-button-toggle>
+          <!-- <mat-button-toggle value="underline">Underline</mat-button-toggle> -->
+        </mat-button-toggle-group>
+    </div>
+    <button mat-button (click)="saveAll()">Сохранить</button>
   </div>
 </div>
