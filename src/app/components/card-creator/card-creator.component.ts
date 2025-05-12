@@ -44,6 +44,7 @@ export class CardCreatorComponent {
   current_tyman?: tymanRect;
   tmp_tyman?: tymanRect;
   color_of_tyman = 'rgb(0 0 0 / 50%)';
+  old_data?: any;
 
   constructor(
     private elec: ElectronService,
@@ -60,13 +61,25 @@ export class CardCreatorComponent {
 
   loadJson() {
     if (!this.files.jsons[0]) return;
-    const data = JSON.parse(
-      this.elec.fs
-        .readFileSync(this.files.path + this.files.jsons[0])
-        .toString()
-    );
+    if (!this.old_data)
+      this.old_data = JSON.parse(
+        this.elec.fs
+          .readFileSync(this.files.path + this.files.jsons[0])
+          .toString()
+      );
+    const data = this.old_data;
     // const vars = ['gridSize', 'lineWidth', 'x', 'y', 'width1', 'height1', 'size'];
-    const vars = ['gridSize', 'lineWidth', 'x', 'y', 'size', "tyman"];
+    const vars = ['gridSize', 'lineWidth', 'x', 'y', 'size', 'tyman'];
+    //TODO
+    // const scalable = ['gridSize', 'x', 'y'];
+    // const scale = Math.abs(
+    //   Math.floor(((this.width1 - data.width) / data.width) * 100) / 100
+    // );
+    // scalable.forEach((e) => {
+    //   data[e] = data[e] * scale;
+    //   console.log(data[e], scale);
+    // });
+
     const t: any = this;
     for (const e of vars) {
       t[e] = data[e];
@@ -90,8 +103,18 @@ export class CardCreatorComponent {
     };
   }
 
+  //TODO
+  // @HostListener('window:resize')
+  // resize() {
+  //   this.width1 = document.documentElement.clientWidth - 300;
+  //   this.height1 = document.documentElement.clientHeight;
+  //   this.loadJson();
+  //   this.drawGrid();
+  //   console.log("1");
+  // }
+
   drawGrid() {
-    let scale = Math.min(
+    const scale = Math.min(
       this.width1 / this.img.width,
       this.height1 / this.img.height
     );
