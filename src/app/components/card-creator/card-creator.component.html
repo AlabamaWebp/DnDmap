@@ -36,31 +36,28 @@
         </mat-slider>
         {{ gridSize }}px
       </span>
-
-
     </div>
     <div class="flexwrap">
       <mat-button-toggle-group [(ngModel)]="type">
-          <mat-button-toggle value="Сетка">Сетка</mat-button-toggle>
-          <mat-button-toggle value="Туман">Туман</mat-button-toggle>
-          <!-- <mat-button-toggle value="underline">Underline</mat-button-toggle> -->
-        </mat-button-toggle-group>
+        <mat-button-toggle value="Сетка">Сетка</mat-button-toggle>
+        <mat-button-toggle value="Туман">Туман</mat-button-toggle>
+      </mat-button-toggle-group>
     </div>
     @if (tyman.length) {
-      <div class="flexwrap">
-        <mat-form-field>
-          <mat-label>Туманы</mat-label>
-          <mat-select (selectionChange)="drawGrid()" [(ngModel)]="current_tyman">
-            @for (item of tyman; track $index) {
-              <mat-option [value]="item">{{item.id}}</mat-option>
-            }
-          </mat-select>
-        </mat-form-field>
-  
-        <button mat-flat-button (click)="deleteTyman()">Удалить туман</button>
+    <div class="flexwrap">
+      @for (item of tyman; track $index) {
+      <div
+        class="tyman"
+        (click)="selectTyman(item)"
+        [class.current]="current_tyman == item"
+      >
+        {{ item.id }}
       </div>
+      }
+      <button mat-flat-button [disabled]="!current_tyman" (click)="deleteTyman()">Удалить туман</button>
+    </div>
     }
-    
+
     <button mat-button (click)="saveAll()">Сохранить</button>
   </div>
 </div>

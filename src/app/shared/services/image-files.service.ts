@@ -9,7 +9,7 @@ export class ImageFilesService {
     this.folders = elec.fs.readdirSync(this.path);
     console.log(this.path, this.folders);
     
-    // elec.fs.mkdirSync(this.path, { recursive: true });
+    elec.fs.mkdirSync(this.path, { recursive: true });
     const types = ['jpg', 'jpeg', 'png', 'webp'];
     this.images = this.folders.filter((e) => types.some((t) => e.includes(t)));
     this.jsons = this.folders.filter((e) => e.includes('json'));

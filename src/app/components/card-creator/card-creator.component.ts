@@ -48,7 +48,7 @@ export class CardCreatorComponent {
     private elec: ElectronService,
     private files: ImageFilesService,
     private cdr: ChangeDetectorRef
-  ) { }
+  ) {}
 
   ngOnInit() {
     this.canvas = document.querySelector('#canvas1') as HTMLCanvasElement;
@@ -64,7 +64,8 @@ export class CardCreatorComponent {
         .readFileSync(this.files.path + this.files.jsons[0])
         .toString()
     );
-    const vars = ['gridSize', 'lineWidth', 'x', 'y', 'width', 'height', 'size'];
+    // const vars = ['gridSize', 'lineWidth', 'x', 'y', 'width1', 'height1', 'size'];
+    const vars = ['gridSize', 'lineWidth', 'x', 'y', 'size'];
     const t: any = this;
     for (const e of vars) {
       t[e] = data[e];
@@ -74,7 +75,8 @@ export class CardCreatorComponent {
   canvasInit(imageSrc?: string) {
     // const test = this.elec.fs.readFileSync("")
     this.img = new Image();
-    this.img.src = "file://" + (imageSrc || this.files.path + this.files.images[0]); // Путь по умолчанию
+    this.img.src =
+      'file://' + (imageSrc || this.files.path + this.files.images[0]); // Путь по умолчанию
     this.name = this.files.images[0].split('.').slice(0, -1).join('.');
     this.img.onload = () => {
       // this.width = this.canvas.clientWidth;
@@ -117,12 +119,10 @@ export class CardCreatorComponent {
       this.ctx.lineTo(this.width1, y);
       this.ctx.stroke();
     }
-    this.tyman.forEach(e => {
-      if (e == this.current_tyman)
-        e.func("rgb(255,160,122)");
-      else
-        e.func();
-    })
+    this.tyman.forEach((e) => {
+      if (e == this.current_tyman) e.func('rgb(100, 100, 100, 80%)');
+      else e.func();
+    });
     this.tmp_tyman?.();
   }
 
@@ -178,8 +178,11 @@ export class CardCreatorComponent {
   }
   @HostListener('document:mouseup')
   canvUnclick() {
-    if (this.type == "Туман" && this.isClicked && this.isMoved) {
-      this.tyman.push({ id: Number(this.tyman.at(-1)?.id ?? 0) + 1 + "", func: this.tmp_tyman! })
+    if (this.type == 'Туман' && this.isClicked && this.isMoved) {
+      this.tyman.push({
+        id: Number(this.tyman.at(-1)?.id ?? 0) + 1 + '',
+        func: this.tmp_tyman!,
+      });
     }
     this.clickedX = -1;
     this.clickedY = -1;
@@ -188,7 +191,7 @@ export class CardCreatorComponent {
   }
   canvMove(event: MouseEvent) {
     if (this.isClicked) {
-      this.isMoved = true
+      this.isMoved = true;
       const rect = this.canvas.getBoundingClientRect();
       const x = event.x - rect.left;
       const y = event.clientY - rect.top;
@@ -204,12 +207,7 @@ export class CardCreatorComponent {
 
     this.tmp_tyman = (color = 'rgb(0 0 0 / 50%)') => {
       this.ctx.fillStyle = color;
-      this.ctx.fillRect(
-        x1,
-        y1,
-        Math.floor(x - x1),
-        Math.floor(y - y1)
-      );
+      this.ctx.fillRect(x1, y1, Math.floor(x - x1), Math.floor(y - y1));
     };
   }
 
@@ -252,13 +250,18 @@ export class CardCreatorComponent {
   test(t: any) {
     console.log(t);
   }
+
   deleteTyman() {
-    this.tyman = this.tyman.filter(e => e != this.current_tyman);
+    this.tyman = this.tyman.filter((e) => e != this.current_tyman);
     this.drawGrid();
   }
-  
+  selectTyman(item: tyman) {
+    if (this.current_tyman == item) this.current_tyman = undefined;
+    else this.current_tyman = item;
+    this.drawGrid();
+  }
 }
 interface tyman {
-  id: string
-  func: (color?: string) => void
+  id: string;
+  func: (color?: string) => void;
 }
