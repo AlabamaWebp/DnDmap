@@ -46,6 +46,21 @@
           <!-- <mat-button-toggle value="underline">Underline</mat-button-toggle> -->
         </mat-button-toggle-group>
     </div>
+    @if (tyman.length) {
+      <div class="flexwrap">
+        <mat-form-field>
+          <mat-label>Туманы</mat-label>
+          <mat-select (selectionChange)="drawGrid()" [(ngModel)]="current_tyman">
+            @for (item of tyman; track $index) {
+              <mat-option [value]="item">{{item.id}}</mat-option>
+            }
+          </mat-select>
+        </mat-form-field>
+  
+        <button mat-flat-button (click)="deleteTyman()">Удалить туман</button>
+      </div>
+    }
+    
     <button mat-button (click)="saveAll()">Сохранить</button>
   </div>
 </div>
