@@ -40,9 +40,10 @@ export class CardCreatorComponent {
   size = 5;
   name!: string;
   type: 'Сетка' | 'Туман' = 'Туман';
-  tyman: tyman[] = [];
-  current_tyman?: tyman;
-  tmp_tyman?: () => void;
+  tyman: tymanRect[] = [];
+  current_tyman?: tymanRect;
+  tmp_tyman?: tymanRect;
+  color_of_tyman = 'rgb(0 0 0 / 50%)';
 
   constructor(
     private elec: ElectronService,
@@ -65,7 +66,7 @@ export class CardCreatorComponent {
         .toString()
     );
     // const vars = ['gridSize', 'lineWidth', 'x', 'y', 'width1', 'height1', 'size'];
-    const vars = ['gridSize', 'lineWidth', 'x', 'y', 'size'];
+    const vars = ['gridSize', 'lineWidth', 'x', 'y', 'size', "tyman"];
     const t: any = this;
     for (const e of vars) {
       t[e] = data[e];
@@ -120,50 +121,59 @@ export class CardCreatorComponent {
       this.ctx.stroke();
     }
     this.tyman.forEach((e) => {
-      if (e == this.current_tyman) e.func('rgb(100, 100, 100, 80%)');
-      else e.func();
+      if (e == this.current_tyman)
+        this.createRect(e, 'rgb(100, 100, 100, 80%)');
+      else this.createRect(e);
     });
-    this.tmp_tyman?.();
+    this.createRect();
+  }
+
+  createRect(
+    rect: tymanRect = this.tmp_tyman!,
+    color: string = this.color_of_tyman
+  ) {
+    if (!rect) return;
+    this.ctx.fillStyle = color;
+    this.ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
   }
 
   updateCanvasGrid() {
     this.drawGrid(); // Перерисовка сетки с новым размером
   }
 
-  onAddImage() {
-    const fileInput = document.getElementById('fileInput') as HTMLInputElement;
-    fileInput.click();
-  }
+  // onAddImage() {
+  //   const fileInput = document.getElementById('fileInput') as HTMLInputElement;
+  //   fileInput.click();
+  // }
+  // onFileSelected(event: Event) {
+  //   const input = event.target as HTMLInputElement;
+  //   if (input.files && input.files[0]) {
+  //     const file = input.files[0];
+  //     const reader = new FileReader();
 
-  onFileSelected(event: Event) {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files[0]) {
-      const file = input.files[0];
-      const reader = new FileReader();
+  //     reader.onload = async () => {
+  //       const imageSrc = reader.result as string;
+  //       this.canvasInit(imageSrc); // Обновляем canvas
 
-      reader.onload = async () => {
-        const imageSrc = reader.result as string;
-        this.canvasInit(imageSrc); // Обновляем canvas
+  //       this.saveImagePath(file.name, Buffer.from(await file.arrayBuffer())); // Сохраняем путь
+  //     };
 
-        this.saveImagePath(file.name, Buffer.from(await file.arrayBuffer())); // Сохраняем путь
-      };
+  //     reader.readAsDataURL(file);
+  //   }
+  // }
 
-      reader.readAsDataURL(file);
-    }
-  }
-
-  async saveImagePath(fileName: string, file: Buffer) {
-    const fullPath = `${this.files['path']}${fileName}`;
-    this.elec.fs.writeFile(`${this.files.path}/${fileName}`, file, (err) => {
-      if (err) {
-        console.error('Error saving file:', err);
-      } else {
-        console.log('File saved successfully.');
-      }
-    });
-    console.log(`Saving image path: ${fullPath}`);
-    // Здесь можно добавить логику для сохранения пути в сервисе
-  }
+  // async saveImagePath(fileName: string, file: Buffer) {
+  //   const fullPath = `${this.files['path']}${fileName}`;
+  //   this.elec.fs.writeFile(`${this.files.path}/${fileName}`, file, (err) => {
+  //     if (err) {
+  //       console.error('Error saving file:', err);
+  //     } else {
+  //       console.log('File saved successfully.');
+  //     }
+  //   });
+  //   console.log(`Saving image path: ${fullPath}`);
+  //   // Здесь можно добавить логику для сохранения пути в сервисе
+  // }
 
   canvClick(event: MouseEvent) {
     console.log(event);
@@ -179,10 +189,7 @@ export class CardCreatorComponent {
   @HostListener('document:mouseup')
   canvUnclick() {
     if (this.type == 'Туман' && this.isClicked && this.isMoved) {
-      this.tyman.push({
-        id: Number(this.tyman.at(-1)?.id ?? 0) + 1 + '',
-        func: this.tmp_tyman!,
-      });
+      this.tyman.push(this.tmp_tyman!);
     }
     this.clickedX = -1;
     this.clickedY = -1;
@@ -204,10 +211,16 @@ export class CardCreatorComponent {
   tymanCreate(x: number, y: number) {
     const x1 = this.clickedX;
     const y1 = this.clickedY;
-
-    this.tmp_tyman = (color = 'rgb(0 0 0 / 50%)') => {
-      this.ctx.fillStyle = color;
-      this.ctx.fillRect(x1, y1, Math.floor(x - x1), Math.floor(y - y1));
+    // this.tmp_tyman = (color = this.color_of_tyman) => {
+    //   this.ctx.fillStyle = color;
+    //   this.ctx.fillRect(x1, y1, Math.floor(x - x1), Math.floor(y - y1));
+    // };
+    this.tmp_tyman = {
+      id: Number(this.tyman.at(-1)?.id ?? 0) + 1 + '',
+      x: x1,
+      y: y1,
+      w: Math.floor(x - x1),
+      h: Math.floor(y - y1),
     };
   }
 
@@ -236,6 +249,7 @@ export class CardCreatorComponent {
         width: this.width1,
         height: this.height1,
         size: Number(this.size),
+        tyman: this.tyman,
       },
       null,
       4
@@ -255,13 +269,17 @@ export class CardCreatorComponent {
     this.tyman = this.tyman.filter((e) => e != this.current_tyman);
     this.drawGrid();
   }
-  selectTyman(item: tyman) {
+  selectTyman(item: tymanRect) {
     if (this.current_tyman == item) this.current_tyman = undefined;
     else this.current_tyman = item;
     this.drawGrid();
   }
 }
-interface tyman {
+interface tymanRect {
   id: string;
-  func: (color?: string) => void;
+  // func: (color?: string) => void;
+  x: number;
+  y: number;
+  w: number;
+  h: number;
 }
