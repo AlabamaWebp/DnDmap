@@ -83,8 +83,8 @@ export class CardCreatorComponent {
       this.width / this.img.width
       // this.height / this.img.height
     );
-    console.log(this.width, this.img.width);
-    this.height = Math.floor(this.img.height * scale);
+    // console.log(this.width, this.img.width);
+    // this.height = Math.floor(this.img.height * scale);
     this.cdr.detectChanges();
     this.ctx.clearRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight); // Очистка this.canvas
     this.ctx.drawImage(
@@ -92,8 +92,8 @@ export class CardCreatorComponent {
       0,
       0,
       this.img.width * scale,
-      // this.img.height * scale
-      this.height
+      this.img.height * scale
+      // this.height
     );
 
     this.ctx.strokeStyle = 'rgba(0,0,0,0.8)'; // Цвет и прозрачность линий

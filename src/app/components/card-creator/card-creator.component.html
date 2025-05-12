@@ -8,35 +8,38 @@
     [height]="height"
   ></canvas>
   <div class="params">
-    <!-- <button mat-button (click)="onAddImage()">Добавить картинку</button> -->
-    <input
-      type="file"
-      id="fileInput"
-      style="display: none"
-      (change)="onFileSelected($event)"
-    />
+    <div class="flexwrap">
+      <input
+        type="file"
+        id="fileInput"
+        style="display: none"
+        (change)="onFileSelected($event)"
+      />
 
-    <mat-form-field>
-      <mat-label>Одна клетка</mat-label>
-      <mat-select [value]="size" (valueChange)="size = $event; test($event)">
-        <mat-option [value]="5">5 футов</mat-option>
-        <mat-option [value]="10">10 футов</mat-option>
-      </mat-select>
-    </mat-form-field>
+      <mat-form-field>
+        <mat-label>Одна клетка</mat-label>
+        <mat-select [value]="size" (valueChange)="size = $event; test($event)">
+          <mat-option [value]="5">5 футов</mat-option>
+          <mat-option [value]="10">10 футов</mat-option>
+        </mat-select>
+      </mat-form-field>
 
-    <span>
-      <mat-slider
-        min="10"
-        max="100"
-        step="1"
-        showTickMarks
-        discrete
-        (input)="updateCanvasGrid()"
-        ><input matSliderThumb [(ngModel)]="gridSize" />
-      </mat-slider>
-      {{ gridSize }}px
-    </span>
+      <span>
+        <mat-slider
+          min="10"
+          max="100"
+          step="1"
+          showTickMarks
+          discrete
+          (input)="updateCanvasGrid()"
+          ><input matSliderThumb [(ngModel)]="gridSize" />
+        </mat-slider>
+        {{ gridSize }}px
+      </span>
 
-    <button mat-button (click)="saveAll()">Сохранить</button>
+      <button mat-button (click)="saveAll()">Сохранить</button>
+    </div>
+    <!-- <div class="flexwrap">
+    </div> -->
   </div>
 </div>
