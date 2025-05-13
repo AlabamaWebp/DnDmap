@@ -45,12 +45,13 @@ export class CardCreatorComponent {
   tmp_tyman?: tymanRect;
   color_of_tyman = 'rgb(0 0 0 / 50%)';
   old_data?: any;
+  scale!: number
 
   constructor(
     private elec: ElectronService,
     private files: ImageFilesService,
     private cdr: ChangeDetectorRef
-  ) {}
+  ) { }
 
   ngOnInit() {
     this.canvas = document.querySelector('#canvas1') as HTMLCanvasElement;
@@ -69,17 +70,8 @@ export class CardCreatorComponent {
       );
     const data = this.old_data;
     // const vars = ['gridSize', 'lineWidth', 'x', 'y', 'width1', 'height1', 'size'];
-    const vars = ['gridSize', 'lineWidth', 'x', 'y', 'size', 'tyman'];
+    const vars = ['gridSize', 'lineWidth', 'x', 'y', 'size', 'tyman', 'scale'];
     //TODO
-    // const scalable = ['gridSize', 'x', 'y'];
-    // const scale = Math.abs(
-    //   Math.floor(((this.width1 - data.width) / data.width) * 100) / 100
-    // );
-    // scalable.forEach((e) => {
-    //   data[e] = data[e] * scale;
-    //   console.log(data[e], scale);
-    // });
-
     const t: any = this;
     for (const e of vars) {
       t[e] = data[e];
@@ -95,6 +87,17 @@ export class CardCreatorComponent {
     this.img.onload = () => {
       // this.width = this.canvas.clientWidth;
       // this.height = this.canvas.clientHeight;
+      const old_scale = this.scale; 
+      const t: any = this
+      this.resize();
+      const scale = 1 - ((old_scale - this.scale) / this.scale);
+      console.log(scale);
+      
+      const scalable = ['gridSize', 'x', 'y'];
+      scalable.forEach((e) => {
+        t[e] = Math.abs(t[e] * scale);
+        console.log(t[e]);
+      });
       this.ctx.imageSmoothingEnabled = true;
       this.ctx.imageSmoothingQuality = 'high';
       this.cdr.detectChanges();
@@ -104,27 +107,32 @@ export class CardCreatorComponent {
   }
 
   //TODO
-  // @HostListener('window:resize')
-  // resize() {
-  //   this.width1 = document.documentElement.clientWidth - 300;
-  //   this.height1 = document.documentElement.clientHeight;
-  //   this.loadJson();
-  //   this.drawGrid();
-  //   console.log("1");
-  // }
+  @HostListener('window:resize')
+  resize() {
+    // this.width1 = document.documentElement.clientWidth - 300;
+    // this.height1 = document.documentElement.clientHeight;
+    // this.loadJson();
+    if (this.img)
+      this.scale = Math.min(
+        this.width1 / this.img.width,
+        this.height1 / this.img.height
+      );
+    this.drawGrid();
+    // console.log("1");
+  }
 
   drawGrid() {
-    const scale = Math.min(
-      this.width1 / this.img.width,
-      this.height1 / this.img.height
-    );
+    // this.scale = Math.min(
+    //   this.width1 / this.img.width,
+    //   this.height1 / this.img.height
+    // );
     this.ctx.clearRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight); // Очистка this.canvas
     this.ctx.drawImage(
       this.img,
       0,
       0,
-      this.img.width * scale,
-      this.img.height * scale
+      this.img.width * this.scale,
+      this.img.height * this.scale
     );
 
     this.ctx.strokeStyle = 'rgba(0,0,0,0.8)'; // Цвет и прозрачность линий
@@ -273,6 +281,7 @@ export class CardCreatorComponent {
         height: this.height1,
         size: Number(this.size),
         tyman: this.tyman,
+        scale: this.scale
       },
       null,
       4
