@@ -31,7 +31,7 @@ export class CardCreatorComponent {
   width1 = document.documentElement.clientWidth - 300;
   height1 = document.documentElement.clientHeight;
   canvas!: HTMLCanvasElement;
-  ctx!: CanvasRenderingContext2D;
+  // ctx!: CanvasRenderingContext2D;
   img!: HTMLImageElement;
   clickedX = 0;
   clickedY = 0;
@@ -45,7 +45,17 @@ export class CardCreatorComponent {
   tmp_tyman?: tymanRect;
   color_of_tyman = 'rgb(0 0 0 / 50%)';
   old_data?: any;
-  scale!: number
+  scale!: number;
+  get ctx() {
+    return this.canvas.getContext('2d')!;
+  }
+
+  timeout?: any
+  runWithTimeout(func: () => void) {
+    if (this.timeout)
+      clearTimeout(this.timeout);
+    this.timeout = setTimeout(func, 200);
+  }
 
   constructor(
     private elec: ElectronService,
@@ -55,7 +65,7 @@ export class CardCreatorComponent {
 
   ngOnInit() {
     this.canvas = document.querySelector('#canvas1') as HTMLCanvasElement;
-    this.ctx = this.canvas.getContext('2d')!;
+    // this.ctx = this.canvas.getContext('2d')!;
     this.loadJson();
     this.canvasInit();
   }
@@ -78,6 +88,22 @@ export class CardCreatorComponent {
     }
   }
 
+  doScale(old_scale: number) {
+    const t: any = this
+    const scale = 1 - ((old_scale - this.scale) / this.scale);
+    const scalable = ['gridSize', 'x', 'y'];
+    scalable.forEach((e) => {
+      t[e] = Math.abs(t[e] * scale);
+    });
+    const tyman_: ('h' | 'w' | 'x' | 'y')[] = ['h', 'w', 'x', 'y']
+    this.tyman = this.tyman.map(e => {
+      tyman_.forEach((k) => {
+        e[k] = e[k] * scale;
+      })
+      return e
+    })
+  }
+
   canvasInit(imageSrc?: string) {
     // const test = this.elec.fs.readFileSync("")
     this.img = new Image();
@@ -87,17 +113,9 @@ export class CardCreatorComponent {
     this.img.onload = () => {
       // this.width = this.canvas.clientWidth;
       // this.height = this.canvas.clientHeight;
-      const old_scale = this.scale; 
-      const t: any = this
+      const old_scale = this.scale;
       this.resize();
-      const scale = 1 - ((old_scale - this.scale) / this.scale);
-      console.log(scale);
-      
-      const scalable = ['gridSize', 'x', 'y'];
-      scalable.forEach((e) => {
-        t[e] = Math.abs(t[e] * scale);
-        console.log(t[e]);
-      });
+      this.doScale(old_scale)
       this.ctx.imageSmoothingEnabled = true;
       this.ctx.imageSmoothingQuality = 'high';
       this.cdr.detectChanges();
@@ -106,18 +124,33 @@ export class CardCreatorComponent {
     };
   }
 
-  //TODO
+  is_first = true
   @HostListener('window:resize')
   resize() {
+    if (this.is_first) {
+      this.is_first = false;
+      return
+    }
     // this.width1 = document.documentElement.clientWidth - 300;
     // this.height1 = document.documentElement.clientHeight;
     // this.loadJson();
-    if (this.img)
-      this.scale = Math.min(
-        this.width1 / this.img.width,
-        this.height1 / this.img.height
-      );
-    this.drawGrid();
+
+    this.runWithTimeout(() => {
+      this.width1 = document.documentElement.clientWidth - 300;
+      this.height1 = document.documentElement.clientHeight;
+      const old_scale = this.scale;
+      if (this.img)
+        this.scale = Math.min(
+          this.width1 / this.img.width,
+          this.height1 / this.img.height
+        );
+      this.canvas = document.querySelector('#canvas1') as HTMLCanvasElement;
+      this.doScale(old_scale);
+      setTimeout(() => {
+        this.drawGrid();     
+      }, 1);
+      this.cdr.detectChanges() 
+    })
     // console.log("1");
   }
 
@@ -126,7 +159,7 @@ export class CardCreatorComponent {
     //   this.width1 / this.img.width,
     //   this.height1 / this.img.height
     // );
-    this.ctx.clearRect(0, 0, this.canvas.clientWidth, this.canvas.clientHeight); // Очистка this.canvas
+    this.ctx.clearRect(0, 0, this.width1, this.height1); // Очистка this.canvas
     this.ctx.drawImage(
       this.img,
       0,
@@ -157,6 +190,8 @@ export class CardCreatorComponent {
       else this.createRect(e);
     });
     this.createRect();
+    console.log("рис");
+
   }
 
   createRect(
@@ -219,7 +254,7 @@ export class CardCreatorComponent {
   }
   @HostListener('document:mouseup')
   canvUnclick() {
-    if (this.type == 'Туман' && this.isClicked && this.isMoved) {
+    if (this.type == 'Туман' && this.isClicked && this.isMoved && this.tmp_tyman) {
       this.tyman.push(this.tmp_tyman!);
     }
     this.clickedX = -1;
@@ -314,4 +349,5 @@ interface tymanRect {
   y: number;
   w: number;
   h: number;
+  // [i: string]: number
 }
