@@ -1,0 +1,10 @@
+    <h2 mat-dialog-title>Введите значение</h2>
+    <mat-dialog-content>
+      <mat-form-field style="width: 100%;">
+        <input matInput [(ngModel)]="inputValue" placeholder="Введите текст" />
+      </mat-form-field>
+    </mat-dialog-content>
+    <mat-dialog-actions align="end">
+      <button mat-button (click)="onCancel()">Выход</button>
+      <button mat-button color="primary" (click)="onAccept()">Принять</button>
+    </mat-dialog-actions>

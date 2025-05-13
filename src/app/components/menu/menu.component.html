@@ -1,0 +1,28 @@
+<div class="wrapper">
+  <div class="flex">
+    <h2>Выбор кампании</h2>
+
+    <button mat-flat-button (click)="openDialog()">Создать</button>
+    <button [disabled]="current == -1" mat-flat-button>Редактировать</button>
+    <button [disabled]="current == -1" mat-stroked-button>
+      Экспортировать
+    </button>
+    <button [disabled]="current == -1" mat-button>Удалить кампанию</button>
+  </div>
+  <div class="grid">
+    @for (item of files.folders; track $index) {
+    <div
+      class="block"
+      [class.selected]="current == $index"
+      (click)="current = $index"
+    >
+      {{ item }}
+    </div>
+    }
+  </div>
+</div>
+<!-- @for (item of images; track $index) {
+<div class="block">
+  <div class="img" style="background-image: url('{{item}}');"></div>
+</div>
+} -->
