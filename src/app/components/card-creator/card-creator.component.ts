@@ -92,7 +92,6 @@ export class CardCreatorComponent {
   doScale(old_scale: number) {
     const t: any = this;
     const scale = 1 + ((this.scale - old_scale) / old_scale);
-    console.log(scale);
     
     const scalable = ['gridSize', 'x', 'y'];
     scalable.forEach((e) => {
