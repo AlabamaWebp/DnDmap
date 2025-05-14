@@ -1,6 +1,7 @@
 .grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+  display: flex;
+  flex-wrap: wrap;
+  // grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
   gap: 10px; /* Отступ между элементами */
   padding: 20px;
   box-sizing: border-box;

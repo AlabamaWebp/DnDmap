@@ -6,13 +6,15 @@ import { ElectronService } from './electron.service';
 })
 export class ImageFilesService {
   constructor(private elec: ElectronService) {
-    this.folders = elec.fs
+    this.refreshFolders()
+    elec.fs.mkdirSync(this.path, { recursive: true });
+    console.log(this.jsons, this.images);
+  }
+  refreshFolders() {
+    this.folders = this.elec.fs
       .readdirSync(this.path, { withFileTypes: true })
       .filter((e) => e.isDirectory())
       .map((e) => e.name);
-
-    elec.fs.mkdirSync(this.path, { recursive: true });
-    console.log(this.jsons, this.images);
   }
   getFolder(folder: string) {
     const data = this.elec.fs.readdirSync(
@@ -23,9 +25,17 @@ export class ImageFilesService {
     this.jsons = data.filter((e) => e.includes('json'));
   }
   createFolder(name: string) {
-    this.elec.fs.mkdirSync(this.elec.path.join(this.path, name))
+    this.elec.fs.mkdirSync(this.elec.path.join(this.path, name));
+    this.refreshFolders();
   }
-  saveImage(image: string, name: string) {}
+  deleteCompany(company: string) {
+    this.elec.fs.rmdir(this.elec.path.join(this.path, company), { recursive: true }, (err) => {
+      if (err) throw err;
+      console.log('Папка и все вложенные файлы удалены');
+      this.refreshFolders();
+    });
+  }
+  saveImage(image: string, name: string) { }
   images!: string[];
   jsons!: string[];
   folders!: string[];
