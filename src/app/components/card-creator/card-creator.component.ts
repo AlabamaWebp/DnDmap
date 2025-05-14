@@ -8,6 +8,7 @@ import { MatSelectModule } from '@angular/material/select';
 import { MatInputModule } from '@angular/material/input';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-card-creator',
@@ -60,8 +61,9 @@ export class CardCreatorComponent {
   constructor(
     private elec: ElectronService,
     private files: ImageFilesService,
-    private cdr: ChangeDetectorRef
-  ) {}
+    private cdr: ChangeDetectorRef,
+    private router: Router
+  ) { }
 
   ngOnInit() {
     this.canvas = document.querySelector('#canvas1') as HTMLCanvasElement;
@@ -71,11 +73,11 @@ export class CardCreatorComponent {
   }
 
   loadJson() {
-    if (!this.files.jsons[0]) return;
+    if (!this.elec.fs.existsSync(this.files.path + this.files.c_comp + "/" + this.files.c_location + ".json")) return;
     if (!this.old_data)
       this.old_data = JSON.parse(
         this.elec.fs
-          .readFileSync(this.files.path + this.files.jsons[0])
+          .readFileSync(this.files.path + this.files.c_comp + "/" + this.files.c_location + ".json")
           .toString()
       );
     const data = this.old_data;
@@ -92,7 +94,7 @@ export class CardCreatorComponent {
   doScale(old_scale: number) {
     const t: any = this;
     const scale = 1 + ((this.scale - old_scale) / old_scale);
-    
+
     const scalable = ['gridSize', 'x', 'y'];
     scalable.forEach((e) => {
       t[e] = Math.abs(t[e] * scale);
@@ -106,12 +108,13 @@ export class CardCreatorComponent {
     });
   }
 
-  canvasInit(imageSrc?: string) {
+  canvasInit() {
     // const test = this.elec.fs.readFileSync("")
     this.img = new Image();
     this.img.src =
-      'file://' + (imageSrc || this.files.path + this.files.images[0]); // Путь по умолчанию
-    this.name = this.files.images[0].split('.').slice(0, -1).join('.');
+      'file://' + this.files.path + this.files.c_comp + "/" + this.files.c_location; // Путь по умолчанию
+    // this.name = this.files.images[0].split('.').slice(0, -1).join('.');
+    this.name = this.files.c_location!;
     this.img.onload = () => {
       // this.width = this.canvas.clientWidth;
       // this.height = this.canvas.clientHeight;
@@ -321,9 +324,12 @@ export class CardCreatorComponent {
   }
   saveAll() {
     this.elec.fs.writeFileSync(
-      this.files.path + this.name + '.json',
+      this.elec.path.join(this.files.path, this.files.c_comp!, this.name + '.json'),
       this.dataToSave
     );
+  }
+  goBack() {
+    this.router.navigate([""])
   }
   test(t: any) {
     console.log(t);

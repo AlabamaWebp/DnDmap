@@ -4,6 +4,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { TextDialogComponent } from '../../shared/components/text-dialog/text-dialog.component';
 import { ElectronService } from '../../shared/services/electron.service';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-menu',
@@ -12,7 +13,7 @@ import { ElectronService } from '../../shared/services/electron.service';
   styleUrl: './menu.component.scss',
 })
 export class MenuComponent {
-  constructor(public files: ImageFilesService, private dialog: MatDialog,) { }
+  constructor(public files: ImageFilesService, private dialog: MatDialog, private router: Router) { }
   current = -1;
   company?: string;
 
@@ -30,11 +31,31 @@ export class MenuComponent {
     this.files.deleteCompany(this.files.folders[this.current]);
     this.current = -1;
   }
-  toedit(c: string) {
-    this.company = c;
+  toedit() {
+    this.company = this.files.folders[this.current];
+    this.current = -1;
+    this.files.getFolder(this.company);
   }
   tocompany() {
     this.company = undefined
+  }
+
+
+  createLocation() {
+    this.dialog
+    .open(TextDialogComponent)
+    .afterClosed()
+    .subscribe((result) => {
+      if (result) {
+        this.files.addImage(this.company!, result);
+      }
+    });
+  }
+  deleteL() {
+    this.files.delLocation(this.company!, this.files.images[this.current])
+  }
+  toCreate() {
+    this.files.goToLocation(this.company!, this.files.images[this.current])
   }
 
 
