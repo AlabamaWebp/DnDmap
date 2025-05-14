@@ -345,7 +345,7 @@ export class CardCreatorComponent {
     this.drawGrid();
   }
 }
-interface tymanRect {
+export interface tymanRect {
   id: string;
   // func: (color?: string) => void;
   x: number;

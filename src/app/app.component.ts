@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
+import { options } from './isgame';
 
 @Component({
   selector: 'app-root',
@@ -9,7 +10,9 @@ import { Router, RouterOutlet } from '@angular/router';
 })
 export class AppComponent {
   constructor(router: Router) {
-    router.navigate([""])
+    if (options.company)
+      router.navigate(["game"]);
+    else router.navigate([""]);
   }
   title = 'test';
 }
