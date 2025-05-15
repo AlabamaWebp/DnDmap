@@ -10,6 +10,7 @@ import { MatInput } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
+import { HttpClient } from '@angular/common/http';
 
 @Component({
   standalone: true,
@@ -44,7 +45,6 @@ export class GameComponent {
   tyman: tymanRect[] = [];
   tmp_tyman?: tymanRect;
   color_of_tyman = 'rgb(0 0 0 / 100%)';
-  old_data?: any;
   scale!: number;
   version = 1;
   timeout?: any;
@@ -52,6 +52,7 @@ export class GameComponent {
   c_gamer?: string;
   gamer_tmp_draw?: coord;
   gamers_draw: { [i: string]: coord } = {};
+  images!: string[]
   colors = [
     'rgb(255, 192, 203)',
     'rgb(51, 51, 131)',
@@ -61,6 +62,14 @@ export class GameComponent {
   ];
   get ctx() {
     return this.canvas.getContext('2d')!;
+  }
+  // gavno
+  getGamedata() {
+    this.http.get("pricol/gamedata.json").subscribe((e: any) => {
+      this.images = e;
+      this.loadJson();
+      this.canvasInit();
+    })
   }
   selectGamer(gamer: string) {
     if (this.c_gamer != gamer) this.c_gamer = gamer;
@@ -75,11 +84,12 @@ export class GameComponent {
   }
 
   constructor(
-    private elec: ElectronService,
-    private files: ImageFilesService,
+    // private elec: ElectronService,
+    // private files: ImageFilesService,
+    private http: HttpClient,
     private cdr: ChangeDetectorRef,
     private router: Router,
-  ) {}
+  ) { }
   runWithTimeout(func: () => void) {
     if (this.timeout) clearTimeout(this.timeout);
     this.timeout = setTimeout(func, 200);
@@ -158,29 +168,17 @@ export class GameComponent {
   }
 
   ngOnInit() {
+    this.getGamedata()
     this.canvas = document.querySelector('#canvas1') as HTMLCanvasElement;
-    // this.ctx = this.canvas.getContext('2d')!;
-    this.files.getFolder(options.company);
-    this.loadJson();
-    this.canvasInit();
   }
 
   canvasInit() {
-    // const test = this.elec.fs.readFileSync("")
     this.img = new Image();
-    this.img.src =
-      'file://' +
-      this.files.path +
-      options.company +
-      '/' +
-      this.files.images[0]; // Путь по умолчанию
-    // this.name = this.files.images[0].split('.').slice(0, -1).join('.');
+    this.img.src = "prcol/" + this.images[0]
     this.img.onload = () => {
-      // this.width = this.canvas.clientWidth;
-      // this.height = this.canvas.clientHeight;
       const old_scale = this.scale;
       this.resize();
-      if (this.old_data) this.doScale(old_scale);
+      this.doScale(old_scale);
       this.ctx.imageSmoothingEnabled = true;
       this.ctx.imageSmoothingQuality = 'high';
       this.cdr.detectChanges();
@@ -190,27 +188,14 @@ export class GameComponent {
   }
 
   loadJson() {
-    if (!this.old_data)
-      this.old_data = JSON.parse(
-        this.elec.fs
-          .readFileSync(
-            this.files.path +
-              options.company +
-              '/' +
-              this.files.images[0] +
-              '.json',
-          )
-          .toString(),
-      );
-    const data = this.old_data;
-    // const vars = ['gridSize', 'lineWidth', 'x', 'y', 'width1', 'height1', 'size'];
-    if (data.version != this.version) return;
-    const vars = ['gridSize', 'lineWidth', 'x', 'y', 'size', 'tyman', 'scale'];
-    //TODO
-    const t: any = this;
-    for (const e of vars) {
-      t[e] = data[e];
-    }
+    this.http.get("pricol/" + this.images[0] + ".json").subscribe((data: any) => {
+      if (data.version != this.version) return;
+      const vars = ['gridSize', 'lineWidth', 'x', 'y', 'size', 'tyman', 'scale'];
+      const t: any = this;
+      for (const e of vars) {
+        t[e] = data[e];
+      }
+    })
   }
 
   doScale(old_scale: number) {

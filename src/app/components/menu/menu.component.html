@@ -4,7 +4,7 @@
     <h2>Выбор кампании</h2>
     <button mat-flat-button (click)="createCompany()">Создать</button>
     <button [disabled]="current == -1" mat-flat-button (click)="toedit()">Редактировать</button>
-    <button [disabled]="current == -1" mat-stroked-button>
+    <button [disabled]="current == -1" mat-stroked-button (click)="export()">
       Экспортировать
     </button>
     <button [disabled]="current == -1" mat-button (click)="deleteC()">Удалить кампанию</button>
@@ -24,6 +24,7 @@
     <button mat-flat-button (click)="createLocation()">Создать</button>
     <button [disabled]="current == -1" mat-flat-button (click)="toCreate()">Редактировать</button>
     <button [disabled]="current == -1" mat-button (click)="1">Удалить локацию</button>
+    <button mat-button (click)="goBack()">Назад</button>
     <div class="grid">
       @for (item of files.images; track $index) {
       <div class="block" [class.selected]="current == $index" (click)="current = $index">

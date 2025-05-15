@@ -19,7 +19,7 @@ export class ImageFilesService {
   }
   getFolder(folder: string) {
     const data = this.elec.fs.readdirSync(
-      this.elec.path.join(this.path, folder)
+      this.plib(this.path, folder)
     );
     // const types = ['jpg', 'jpeg', 'png', 'webp'];
     // this.images = data.filter((e) => types.some((t) => e.includes(t)));
@@ -27,11 +27,11 @@ export class ImageFilesService {
     this.images = data.filter((e) => !e.includes('.json'));
   }
   createFolder(name: string) {
-    this.elec.fs.mkdirSync(this.elec.path.join(this.path, name));
+    this.elec.fs.mkdirSync(this.plib(this.path, name));
     this.refreshFolders();
   }
   deleteCompany(company: string) {
-    this.elec.fs.rmdir(this.elec.path.join(this.path, company), { recursive: true }, (err) => {
+    this.elec.fs.rmdir(this.plib(this.path, company), { recursive: true }, (err) => {
       if (err) throw err;
       console.log('Папка и все вложенные файлы удалены');
       this.refreshFolders();
@@ -42,7 +42,8 @@ export class ImageFilesService {
   jsons!: string[];
   folders!: string[];
   // public path = this.elec.platform == "win32" ?  'C:/pricol/' : "~/pricol"; // Путь для сохранения изображений
-  public path = this.elec.path.join(
+  plib = this.elec.path.join;
+  public path = this.plib(
     (window as any).process.env.HOME || (window as any).process.env.USERPROFILE,
     'pricol/'
   ); // Путь для сохранения изображений
@@ -71,9 +72,9 @@ export class ImageFilesService {
   }
 
   async saveImagePath(fileName: string, file: Buffer, compmany: string) {
-    // const fullPath = this.elec.path.join(this.path, compmany, this.images.length + "." + fileName.split(".").at(-1)!);
-    
-    const fullPath = this.elec.path.join(this.path, compmany, fileName);
+    // const fullPath = this.plib(this.path, compmany, this.images.length + "." + fileName.split(".").at(-1)!);
+
+    const fullPath = this.plib(this.path, compmany, fileName);
     console.log(fullPath);
     this.elec.fs.writeFileSync(fullPath, file);
     this.getFolder(compmany)
@@ -86,12 +87,18 @@ export class ImageFilesService {
     this.router.navigate(["create"]);
   }
   delLocation(company: string, location: string) {
-    let d = this.elec.path.join(this.path, company, location)
+    let d = this.plib(this.path, company, location)
     if (this.elec.fs.existsSync(d))
       this.elec.fs.rmSync(d)
     d += ".json"
     if (this.elec.fs.existsSync(d))
       this.elec.fs.rmSync(d)
   }
-
+  export(c: string) {
+    const p = this.plib(window.process.cwd(), "src", "pricol");
+    this.elec.fs.mkdirSync(p, { recursive: true })
+    this.elec.fs.cpSync(this.path + c, p, { recursive: true });
+    this.getFolder(c);
+    this.elec.fs.writeFileSync(this.plib(p, "gamedata.json"), JSON.stringify(this.images))
+  }
 }

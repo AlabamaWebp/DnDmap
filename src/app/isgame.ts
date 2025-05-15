@@ -1,3 +1,3 @@
 export const options: any = {
-    company: "Гоблинское пиво"
+    company: true
 }

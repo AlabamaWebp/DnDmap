@@ -28,12 +28,15 @@ export class MenuComponent {
         }
       });
   }
+  get folder() {
+    return this.files.folders[this.current]
+  }
   deleteC() {
-    this.files.deleteCompany(this.files.folders[this.current]);
+    this.files.deleteCompany(this.folder);
     this.current = -1;
   }
   toedit() {
-    this.company = this.files.folders[this.current];
+    this.company = this.folder;
     this.current = -1;
     this.files.getFolder(this.company);
   }
@@ -57,6 +60,15 @@ export class MenuComponent {
   }
   toCreate() {
     this.files.goToLocation(this.company!, this.files.images[this.current])
+  }
+
+  goBack() {
+    this.company = undefined;
+    this.current = -1;
+  }
+
+  export() {
+    this.files.export(this.folder)
   }
 
 

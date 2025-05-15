@@ -30,7 +30,8 @@
                 "glob": "**/*",
                 "input": "public"
               },
-              "src/link_files"
+              "src/link_files",
+              "src/pricol"
             ],
             "styles": [
               "@angular/material/prebuilt-themes/magenta-violet.css",
