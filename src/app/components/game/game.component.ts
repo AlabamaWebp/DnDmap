@@ -52,7 +52,8 @@ export class GameComponent {
   c_gamer?: string;
   gamer_tmp_draw?: coord;
   gamers_draw: { [i: string]: coord } = {};
-  images!: string[]
+  images: string[] = [];
+  c_image!: string
   colors = [
     'rgb(255, 192, 203)',
     'rgb(51, 51, 131)',
@@ -67,6 +68,7 @@ export class GameComponent {
   getGamedata() {
     this.http.get("pricol/gamedata.json").subscribe((e: any) => {
       this.images = e;
+      this.c_image = this.images[0];
       this.loadJson();
       this.canvasInit();
     })
@@ -174,7 +176,7 @@ export class GameComponent {
 
   canvasInit() {
     this.img = new Image();
-    this.img.src = "pricol/" + this.images[0]
+    this.img.src = "pricol/" + this.c_image
     this.img.onload = () => {
       const old_scale = this.scale;
       this.resize();
@@ -188,7 +190,7 @@ export class GameComponent {
   }
 
   loadJson() {
-    this.http.get("pricol/" + this.images[0] + ".json").subscribe((data: any) => {
+    this.http.get("pricol/" + this.c_image + ".json").subscribe((data: any) => {
       if (data.version != this.version) return;
       const vars = ['gridSize', 'lineWidth', 'x', 'y', 'size', 'tyman', 'scale'];
       const t: any = this;
@@ -275,6 +277,11 @@ export class GameComponent {
   delTyman(id: string) {
     this.tyman = this.tyman.filter(e => e.id !== id);
     this.drawGrid()
+  }
+  goTo(i: string) {
+    this.c_image = i;
+    this.loadJson();
+    this.canvasInit();
   }
 }
 interface coord {

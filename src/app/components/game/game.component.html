@@ -42,6 +42,11 @@
                 Удалить туман {{ item.id }}
               </button>
             }
+            @for (item of images; track $index) {
+              <button mat-menu-item (click)="goTo(item)">
+                Перейти на {{ item }}
+              </button>
+            }
             <button mat-menu-item (click)="gamers = 0">
               Поменять кол-во игроков
             </button>
