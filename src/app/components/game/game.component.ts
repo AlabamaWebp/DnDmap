@@ -34,7 +34,6 @@ export class GameComponent {
   width1 = document.documentElement.clientWidth - 300;
   height1 = document.documentElement.clientHeight;
   canvas!: HTMLCanvasElement;
-  // ctx!: CanvasRenderingContext2D;
   img!: HTMLImageElement;
   clickedX = 0;
   clickedY = 0;
@@ -53,7 +52,11 @@ export class GameComponent {
   gamer_tmp_draw?: coord;
   gamers_draw: { [i: string]: coord } = {};
   images: string[] = [];
-  c_image!: string
+  mcolors: string[] = ['rgb(109, 33, 33)'];
+  monsters_draw!: { [i: string]: coord[] };
+  monster_tmp_draw?: coord;
+  c_monster?: string;
+  c_image!: string;
   colors = [
     'rgb(255, 192, 203)',
     'rgb(51, 51, 131)',
@@ -66,17 +69,23 @@ export class GameComponent {
   }
   // gavno
   getGamedata() {
-    this.http.get("pricol/gamedata.json").subscribe((e: any) => {
+    this.http.get('pricol/gamedata.json').subscribe((e: any) => {
       this.images = e;
       this.c_image = this.images[0];
       this.loadJson();
       this.canvasInit();
-    })
+    });
   }
   selectGamer(gamer: string) {
     if (this.c_gamer != gamer) this.c_gamer = gamer;
     else this.c_gamer = undefined;
     this.gamer_tmp_draw = undefined;
+    this.drawGrid();
+  }
+  selectMonster(m: string) {
+    if (this.c_monster != m) this.c_monster = m;
+    else this.c_monster = undefined;
+    this.monster_tmp_draw = undefined;
     this.drawGrid();
   }
 
@@ -90,11 +99,13 @@ export class GameComponent {
     // private files: ImageFilesService,
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
-    private router: Router,
-  ) { }
+    private router: Router
+  ) {}
   runWithTimeout(func: () => void) {
     if (this.timeout) clearTimeout(this.timeout);
     this.timeout = setTimeout(func, 200);
+    this.monsters_draw = {};
+    this.mcolors.forEach((e) => (this.monsters_draw[e] = []));
   }
 
   canvClick(event: MouseEvent) {
@@ -106,9 +117,13 @@ export class GameComponent {
       this.clickedY = y;
       this.isClicked = true;
       if (this.c_gamer) {
-        console.log(event);
         this.gamers_draw[this.c_gamer] = this.gamer_tmp_draw!;
         this.c_gamer = undefined;
+        this.drawGrid();
+      }
+      if (this.c_monster) {
+        this.monsters_draw[this.c_monster].push(this.monster_tmp_draw!);
+        this.c_monster = undefined;
         this.drawGrid();
       }
     }
@@ -149,6 +164,19 @@ export class GameComponent {
       };
       this.drawGrid();
     }
+    if (this.c_monster) {
+      this.monster_tmp_draw = {
+        x:
+          Math.floor((x - this.x) / this.gridSize) * this.gridSize +
+          this.x +
+          this.gridSize / 2,
+        y:
+          Math.floor((y - this.y) / this.gridSize) * this.gridSize +
+          this.y +
+          this.gridSize / 2,
+      };
+      this.drawGrid();
+    }
   }
 
   @HostListener('window:resize')
@@ -158,7 +186,7 @@ export class GameComponent {
       if (this.img)
         this.scale = Math.max(
           document.documentElement.clientWidth / this.img.width,
-          document.documentElement.clientHeight / this.img.height,
+          document.documentElement.clientHeight / this.img.height
         );
       this.canvas = document.querySelector('#canvas1') as HTMLCanvasElement;
       this.doScale(old_scale);
@@ -170,13 +198,13 @@ export class GameComponent {
   }
 
   ngOnInit() {
-    this.getGamedata()
+    this.getGamedata();
     this.canvas = document.querySelector('#canvas1') as HTMLCanvasElement;
   }
 
   canvasInit() {
     this.img = new Image();
-    this.img.src = "pricol/" + this.c_image
+    this.img.src = 'pricol/' + this.c_image;
     this.img.onload = () => {
       const old_scale = this.scale;
       this.resize();
@@ -190,14 +218,22 @@ export class GameComponent {
   }
 
   loadJson() {
-    this.http.get("pricol/" + this.c_image + ".json").subscribe((data: any) => {
+    this.http.get('pricol/' + this.c_image + '.json').subscribe((data: any) => {
       if (data.version != this.version) return;
-      const vars = ['gridSize', 'lineWidth', 'x', 'y', 'size', 'tyman', 'scale'];
+      const vars = [
+        'gridSize',
+        'lineWidth',
+        'x',
+        'y',
+        'size',
+        'tyman',
+        'scale',
+      ];
       const t: any = this;
       for (const e of vars) {
         t[e] = data[e];
       }
-    })
+    });
   }
 
   doScale(old_scale: number) {
@@ -248,23 +284,31 @@ export class GameComponent {
     Object.keys(this.gamers_draw).forEach((c) => {
       this.createCircle(this.gamers_draw[c], c);
     });
+    this.createCircle(this.monster_tmp_draw, this.c_monster, true);
+    Object.keys(this.monsters_draw).forEach((c) => {
+      this.monsters_draw[c].forEach((el) => {
+        this.createCircle(el, c, true);
+      });
+    });
   }
   createCircle(
     d: coord | undefined = this.gamer_tmp_draw,
     color: string | undefined = this.c_gamer,
+    monster = false
   ) {
     if (!d || !color) return;
     this.ctx.fillStyle = color;
     this.ctx.beginPath();
     this.ctx.arc(d.x, d.y, this.gridSize / 2, 0, 2 * Math.PI, false);
     this.ctx.fill();
-    this.ctx.strokeStyle = 'rgb(255, 255, 255)';
+    this.ctx.lineWidth = 3;
+    this.ctx.strokeStyle = !monster ? 'rgb(255, 255, 255)' : 'rgb(255, 0, 0)';
     this.ctx.stroke();
   }
 
   createRect(
     rect: tymanRect = this.tmp_tyman!,
-    color: string = this.color_of_tyman,
+    color: string = this.color_of_tyman
   ) {
     if (!rect) return;
     this.ctx.fillStyle = color;
@@ -275,8 +319,8 @@ export class GameComponent {
     this.drawGrid();
   }
   delTyman(id: string) {
-    this.tyman = this.tyman.filter(e => e.id !== id);
-    this.drawGrid()
+    this.tyman = this.tyman.filter((e) => e.id !== id);
+    this.drawGrid();
   }
   goTo(i: string) {
     this.c_image = i;
