@@ -3,7 +3,6 @@ import { ImageFilesService } from '../../shared/services/image-files.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
 import { TextDialogComponent } from '../../shared/components/text-dialog/text-dialog.component';
-import { ElectronService } from '../../shared/services/electron.service';
 import { Router } from '@angular/router';
 
 @Component({
