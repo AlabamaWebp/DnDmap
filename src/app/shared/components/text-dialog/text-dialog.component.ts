@@ -7,6 +7,7 @@ import { MatInputModule } from '@angular/material/input';
 import { MatDialogRef, MatDialogModule } from '@angular/material/dialog';
 
 @Component({
+  standalone: true,
   selector: 'app-text-dialog',
   imports: [
     CommonModule,

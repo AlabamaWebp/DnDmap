@@ -7,6 +7,7 @@ import { ElectronService } from '../../shared/services/electron.service';
 import { Router } from '@angular/router';
 
 @Component({
+  standalone: true,
   selector: 'app-menu',
   imports: [MatButtonModule],
   templateUrl: './menu.component.html',

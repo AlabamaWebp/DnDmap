@@ -1,4 +1,4 @@
-import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener, OnInit } from '@angular/core';
 import { ElectronService } from '../../shared/services/electron.service';
 import { ImageFilesService } from '../../shared/services/image-files.service';
 import { MatSliderModule } from '@angular/material/slider';
@@ -11,6 +11,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { Router } from '@angular/router';
 
 @Component({
+  standalone: true,
   selector: 'app-card-creator',
   imports: [
     MatSliderModule,
@@ -24,7 +25,7 @@ import { Router } from '@angular/router';
   templateUrl: './card-creator.component.html',
   styleUrl: './card-creator.component.scss',
 })
-export class CardCreatorComponent {
+export class CardCreatorComponent implements OnInit {
   gridSize = 80; // Размер сетки по умолчанию
   lineWidth = 1; // Ширина линий по умолчанию
   x = 0.5;
@@ -40,7 +41,7 @@ export class CardCreatorComponent {
   isMoved = false;
   size = 5;
   name!: string;
-  type: 'Сетка' | 'Туман' = 'Туман';
+  type: 'Сетка' | 'Туман' = 'Сетка';
   tyman: tymanRect[] = [];
   current_tyman?: tymanRect;
   tmp_tyman?: tymanRect;
@@ -84,7 +85,6 @@ export class CardCreatorComponent {
     // const vars = ['gridSize', 'lineWidth', 'x', 'y', 'width1', 'height1', 'size'];
     if (data.version != this.version) return;
     const vars = ['gridSize', 'lineWidth', 'x', 'y', 'size', 'tyman', 'scale'];
-    //TODO
     const t: any = this;
     for (const e of vars) {
       t[e] = data[e];
@@ -94,7 +94,7 @@ export class CardCreatorComponent {
   doScale(old_scale: number) {
     const t: any = this;
     const scale = 1 + ((this.scale - old_scale) / old_scale);
-
+    if (Number.isNaN(scale)) return
     const scalable = ['gridSize', 'x', 'y'];
     scalable.forEach((e) => {
       t[e] = Math.abs(t[e] * scale);

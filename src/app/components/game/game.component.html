@@ -1,5 +1,5 @@
 <div class="wrapper">
-    <canvas
+  <canvas
     id="canvas1"
     class="canvas1"
     (mousedown)="canvClick($event)"
@@ -8,6 +8,46 @@
     [height]="height1"
     [style.height]="height1 + 'px'"
     [style.width]="width1 + 'px'"
-></canvas>
-<div class="foll"></div>
+  ></canvas>
+  <div class="foll"></div>
+  <div class="menu">
+    @if (!gamers) {
+      <div class="flex gamers">
+        <mat-form-field>
+          <mat-label>Кол-во игроков</mat-label>
+          <input matInput type="number" #a />
+          <button matSuffix mat-flat-button (click)="countGamers(a.valueAsNumber)">
+            ok
+          </button>
+        </mat-form-field>
+      </div>
+    } @else {
+      <div class="flex">
+        <div class="abs">Игроки</div>
+        @for (item of colors; track $index) {
+          <div
+            class="gamer"
+            (click)="selectGamer(item)"
+            (dblclick)="removeGamer(item)"
+            [style.backgroundColor]="item"
+          ></div>
+        }
+      </div>
+      <div class="flex">
+        <div class="gamer" [matMenuTriggerFor]="menu">
+          <mat-icon>menu</mat-icon>
+          <mat-menu #menu>
+            @for (item of tyman; track $index) {
+              <button mat-menu-item (click)="delTyman(item.id)">
+                Удалить туман {{ item.id }}
+              </button>
+            }
+            <button mat-menu-item (click)="gamers = 0">
+              Поменять кол-во игроков
+            </button>
+          </mat-menu>
+        </div>
+      </div>
+    }
+  </div>
 </div>

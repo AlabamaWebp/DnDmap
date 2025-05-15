@@ -29,7 +29,8 @@
               {
                 "glob": "**/*",
                 "input": "public"
-              }
+              },
+              "src/link_files"
             ],
             "styles": [
               "@angular/material/prebuilt-themes/magenta-violet.css",
