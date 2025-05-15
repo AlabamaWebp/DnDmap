@@ -174,7 +174,7 @@ export class GameComponent {
 
   canvasInit() {
     this.img = new Image();
-    this.img.src = "prcol/" + this.images[0]
+    this.img.src = "pricol/" + this.images[0]
     this.img.onload = () => {
       const old_scale = this.scale;
       this.resize();
