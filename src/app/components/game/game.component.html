@@ -14,7 +14,7 @@
   <div class="menu">
     @if (!gamers.count) {
       <div class="flex gamers">
-        <mat-form-field>
+        <!-- <mat-form-field>
           <mat-label>Кол-во игроков</mat-label>
           <input matInput type="number" #a />
           <button
@@ -24,7 +24,10 @@
           >
             ok
           </button>
-        </mat-form-field>
+        </mat-form-field> -->
+        @for (item of gamers.max; track $index) {
+          <div (click)="countGamers(item)" class="players">{{item}}</div>
+        }
       </div>
     } @else {
       <div class="flex">

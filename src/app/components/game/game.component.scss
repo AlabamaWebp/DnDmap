@@ -89,3 +89,13 @@
 .selected {
   border-color: yellow !important;
 }
+.players {
+  background-color: rgb(201, 201, 201);
+  border-radius: 10px;
+  margin: 0 10px 0 0;
+  color: black;
+  font-size: 25px;
+  font-weight: bold;
+  padding: 20px 30px;
+  cursor: pointer;
+}

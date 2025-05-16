@@ -374,10 +374,6 @@ export class GameComponent {
   }
 }
 
-
-
-
-
 interface coord {
   x: number;
   y: number;
@@ -410,6 +406,7 @@ class gamer extends fishki {
   all_backup: string[];
   draw: { [i: string]: coord } = {};
   count: number;
+  max = Array.from({ length: this.all.length }, (_, i) => ++i);
 }
 class monster extends fishki {
   constructor(all: string[]) {
