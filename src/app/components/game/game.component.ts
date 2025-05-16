@@ -15,7 +15,6 @@ import { HttpClient } from '@angular/common/http';
   imports: [
     MatFormFieldModule,
     FormsModule,
-    MatInput,
     MatButtonModule,
     MatIcon,
     MatMenuModule,
