@@ -57,6 +57,7 @@
   left: 50%;
   transform: translate(-50%);
   font-size: 15px;
+  font-weight: bold;
   color: white;
 }
 .center {
@@ -98,4 +99,28 @@
   font-weight: bold;
   padding: 20px 30px;
   cursor: pointer;
+}
+h1 {
+  color: white;
+  font-size: 32px;
+}
+.fdc {
+  flex-direction: column;
+}
+.cw {
+  color: white;
+}
+.rotate {
+  animation: rotate 1s infinite;
+  font-size: 50px;
+  width: 50px;
+  height: 50px;
+}
+@keyframes rotate {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
 }

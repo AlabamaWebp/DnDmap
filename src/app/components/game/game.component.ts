@@ -48,6 +48,8 @@ export class GameComponent {
   erase = false;
   current_fishka?: fishka;
   monsters = new monster(['rgb(109, 33, 33)', 'rgb(37, 37, 37)']);
+  no_gamedata = true;
+  loading = true;
   gamers = new gamer([
     'rgb(252, 161, 176)',
     'rgb(51, 51, 131)',
@@ -63,13 +65,17 @@ export class GameComponent {
     this.fullscreen = !this.fullscreen;
     this.fullscreen ? openFullscreen() : closeFullscreen();
   }
-  // gavno
   getGamedata() {
-    this.http.get('pricol/gamedata.json').subscribe((e: any) => {
-      this.images = e;
-      this.c_image = this.images[0];
-      this.loadJson();
-      this.canvasInit();
+    this.http.get('pricol/gamedata.json').subscribe({
+      next: (e: any) => {
+        this.images = e;
+        this.c_image = this.images[0];
+        this.loadJson();
+        this.canvasInit();
+        this.no_gamedata = false;
+        this.loading = false;
+      },
+      error: () => {},
     });
   }
   selectObj(target: string, monster = false) {
