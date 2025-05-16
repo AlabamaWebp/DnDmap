@@ -37,9 +37,9 @@
 }
 .flex {
   height: 60px;
+  display: flex;
+  align-items: center;
   & > * {
     margin: 10px;
   }
-  display: flex;
-  align-items: center;
 }
