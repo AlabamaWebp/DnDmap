@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { Router, RouterOutlet } from '@angular/router';
-import { options } from './isgame';
 import { ElectronService } from './shared/services/electron.service';
 
 @Component({
@@ -12,7 +11,7 @@ import { ElectronService } from './shared/services/electron.service';
 })
 export class AppComponent {
   constructor(d: ElectronService, router: Router) {
-    if (!d.isElectron) router.navigate(['game']);
+    if (!d.isElectron) router.navigate(['t']);
     else router.navigate(['']);
   }
 }

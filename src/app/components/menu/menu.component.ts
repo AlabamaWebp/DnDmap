@@ -55,7 +55,8 @@ export class MenuComponent {
     });
   }
   deleteL() {
-    this.files.delLocation(this.company!, this.files.images[this.current])
+    this.files.delLocation(this.company!, this.files.images[this.current]);
+    this.files.getFolder(this.company!)
   }
   toCreate() {
     this.files.goToLocation(this.company!, this.files.images[this.current])

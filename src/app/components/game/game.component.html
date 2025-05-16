@@ -4,6 +4,7 @@
     class="canvas1"
     (mousedown)="canvClick($event)"
     (mousemove)="canvMove($event)"
+    (mouseleave)="clearTmp()"
     [width]="width1"
     [height]="height1"
     [style.height]="height1 + 'px'"
@@ -11,60 +12,73 @@
   ></canvas>
   <div class="foll"></div>
   <div class="menu">
-    @if (!gamers) {
-    <div class="flex gamers">
-      <mat-form-field>
-        <mat-label>Кол-во игроков</mat-label>
-        <input matInput type="number" #a />
-        <button
-          matSuffix
-          mat-flat-button
-          (click)="countGamers(a.valueAsNumber)"
-        >
-          ok
-        </button>
-      </mat-form-field>
-    </div>
-    } @else {
-    <div class="flex">
-      <div class="abs">Игроки</div>
-      @for (item of colors; track $index) {
-      <div
-        class="gamer"
-        (click)="selectGamer(item)"
-        (dblclick)="removeGamer(item)"
-        [style.backgroundColor]="item"
-      ></div>
-      }
-    </div>
-    <div class="flex">
-      <div class="abs">Монстрики</div>
-      @for (item of mcolors; track $index) {
-      <div
-        class="monster"
-        (click)="selectMonster(item)"
-        [style.backgroundColor]="item"
-      ></div>
-      }
-
-      <div class="gamer" [matMenuTriggerFor]="menu">
-        <mat-icon>menu</mat-icon>
-        <mat-menu #menu>
-          @for (item of tyman; track $index) {
-          <button mat-menu-item (click)="delTyman(item.id)">
-            Удалить туман {{ item.id }}
+    @if (!gamers.count) {
+      <div class="flex gamers">
+        <mat-form-field>
+          <mat-label>Кол-во игроков</mat-label>
+          <input matInput type="number" #a />
+          <button
+            matSuffix
+            mat-flat-button
+            (click)="countGamers(a.valueAsNumber)"
+          >
+            ok
           </button>
-          } @for (item of images; track $index) {
-          <button mat-menu-item (click)="goTo(item)">
-            Перейти на {{ item }}
-          </button>
-          }
-          <button mat-menu-item (click)="gamers = 0">
-            Поменять кол-во игроков
-          </button>
-        </mat-menu>
+        </mat-form-field>
       </div>
-    </div>
+    } @else {
+      <div class="flex">
+        <div class="abs">Игроки</div>
+        @for (item of gamers.all; track $index) {
+          <div
+            class="gamer"
+            (click)="selectObj(item)"
+            (dblclick)="removeGamer(item)"
+            [style.backgroundColor]="item"
+            [class.selected]="gamers.current === item"
+
+          ></div>
+        }
+      </div>
+      <div class="flex">
+        <div class="abs">Монстрики</div>
+        <div
+          class="gamer"
+          [class.selected]="erase"
+          (click)="eraser()"
+        >
+        <mat-icon>gavel</mat-icon>
+      </div>
+        @for (item of monsters.all; track $index) {
+          <div
+            class="monster"
+            (click)="selectObj(item, true)"
+            [class.selected]="monsters.current && monsters.current === item"
+            [style.backgroundColor]="item"
+          ></div>
+        }
+
+        <div class="gamer" [matMenuTriggerFor]="menu">
+          <mat-icon>menu</mat-icon>
+          <mat-menu #menu>
+            @for (item of tyman; track $index) {
+              <button mat-menu-item (click)="delTyman(item.id)">
+                Удалить туман {{ item.id }}
+              </button>
+            }
+            @for (item of images; track $index) {
+              @if (item !== c_image) {
+                <button mat-menu-item (click)="goTo(item)">
+                  Перейти на {{ item }}
+                </button>
+              }
+            }
+            <button mat-menu-item (click)="gamers.count = 0">
+              Поменять кол-во игроков
+            </button>
+          </mat-menu>
+        </div>
+      </div>
     }
   </div>
 </div>

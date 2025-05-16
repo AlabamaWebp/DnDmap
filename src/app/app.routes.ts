@@ -6,6 +6,6 @@ import { GameComponent } from './components/game/game.component';
 export const routes: Routes = [
   { path: '', component: MenuComponent },
   { path: 'create', component: CardCreatorComponent},
-  { path: 'game', component: GameComponent},
+  { path: 't', component: GameComponent},
   { path: '**', redirectTo: '' },
 ];
