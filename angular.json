@@ -31,7 +31,8 @@
                 "input": "public"
               },
               "src/link_files",
-              "src/pricol"
+              "src/pricol",
+              "src/assets"
             ],
             "styles": [
               "@angular/material/prebuilt-themes/magenta-violet.css",

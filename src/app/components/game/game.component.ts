@@ -37,6 +37,7 @@ export class GameComponent {
   isMoved = false;
   size = 5;
   type: 'Сетка' | 'Туман' = 'Туман';
+  img_tyman?: HTMLImageElement;
   tyman: tymanRect[] = [];
   tmp_tyman?: tymanRect;
   color_of_tyman = 'rgb(0 0 0 / 100%)';
@@ -345,14 +346,100 @@ export class GameComponent {
     this.ctx.stroke();
   }
 
-  createRect(
+  async createRect(
     rect: tymanRect = this.tmp_tyman!,
     color: string = this.color_of_tyman
   ) {
     if (!rect) return;
-    this.ctx.fillStyle = color;
-    this.ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+    const imagePath = 'assets/tyman.jpg';
+    if (!this.img_tyman) {
+      this.img_tyman = await new Promise<HTMLImageElement>(
+        (resolve, reject) => {
+          const image = new Image();
+          image.src = imagePath;
+          image.onload = () => resolve(image);
+          image.onerror = reject;
+        }
+      );
+    }
+    // Создаём canvas для размытого слоя
+    const blurCanvas = document.createElement('canvas');
+    const scale = 0; // немного увеличиваем для размытия краёв
+    const scaledWidth = rect.w;
+    const scaledHeight = rect.h;
+    blurCanvas.width = scaledWidth;
+    blurCanvas.height = scaledHeight;
+    const blurCtx = blurCanvas.getContext('2d')!;
+    // Применяем размытие и рисуем увеличенное изображение для размытия краёв
+    blurCtx.filter = 'blur(5px)';
+    blurCtx.drawImage(
+      this.img_tyman,
+      (rect.w - scaledWidth) / 2 + scale,
+      (rect.h - scaledHeight) / 2 + scale,
+      rect.w,
+      rect.h
+    );
+    this.ctx.drawImage(blurCanvas, rect.x, rect.y);
+    // this.ctx.filter = 'none';
+    // this.ctx.drawImage(this.img_tyman, rect.x, rect.y, rect.w, rect.h);
   }
+
+  // async createRect(
+  //   rect: tymanRect = this.tmp_tyman!,
+  //   color: string = this.color_of_tyman
+  // ) {
+  //   if (!rect) return;
+  //   const imagePath: string = 'assets/tyman.jpg';
+  //   const blurRadius: number = 1000;
+  //   if (!this.img_tyman) {
+  //     this.img_tyman = await new Promise<HTMLImageElement>(
+  //       (resolve, reject) => {
+  //         const image = new window.Image();
+  //         image.src = imagePath;
+  //         image.onload = () => resolve(image);
+  //         image.onerror = reject;
+  //       }
+  //     );
+  //   }
+  //   const imgCanvas = document.createElement('canvas');
+  //   imgCanvas.width = rect.w;
+  //   imgCanvas.height = rect.h;
+  //   imgCanvas.getContext('2d')!.drawImage(this.img_tyman, 0, 0, rect.w, rect.h);
+  //   this.ctx.drawImage(imgCanvas, rect.x, rect.y);
+  // }
+
+  // createRect(
+  //   rect: tymanRect = this.tmp_tyman!,
+  //   color: string = this.color_of_tyman
+  // ) {
+  //   if (!rect) return;
+
+  //   this.ctx.save();
+
+  //   // Задаем фильтр размытия для мягкости тумана
+  //   this.ctx.filter = 'blur(10px)';
+
+  //   // Создаем линейный градиент от белого (или светло-серого) к прозрачному
+  //   // для эффекта объемного тумана
+  //   const gradient = this.ctx.createRadialGradient(
+  //     rect.x + rect.w / 2,
+  //     rect.y + rect.h / 2,
+  //     Math.min(rect.w, rect.h) / 4,
+  //     rect.x + rect.w / 2,
+  //     rect.y + rect.h / 2,
+  //     Math.max(rect.w, rect.h) / 2
+  //   );
+  //   gradient.addColorStop(0, 'rgb(179, 179, 179)'); // плотный светлый центр
+  //   gradient.addColorStop(1, 'rgb(175, 175, 175)');   // прозрачные края
+
+  //   this.ctx.fillStyle = gradient;
+
+  //   // Заполняем всю прямоугольную область градиентом
+  //   this.ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
+
+  //   this.ctx.restore();
+  // }
+
   removeGamer(gamer: string) {
     delete this.gamers.draw[gamer];
     this.drawGrid();
