@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { ChangeDetectorRef, Component } from '@angular/core';
 import { ImageFilesService } from '../../shared/services/image-files.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
@@ -13,7 +13,12 @@ import { Router } from '@angular/router';
   styleUrl: './menu.component.scss',
 })
 export class MenuComponent {
-  constructor(public files: ImageFilesService, private dialog: MatDialog, private router: Router) { }
+  constructor(
+    public files: ImageFilesService,
+    private dialog: MatDialog,
+    private router: Router,
+    private cdr: ChangeDetectorRef
+  ) {}
   current = -1;
   company?: string;
 
@@ -28,12 +33,13 @@ export class MenuComponent {
       });
   }
   get folder() {
-    return this.files.folders[this.current]
+    return this.files.folders[this.current];
   }
   deleteC() {
     this.files.deleteCompany(this.folder);
     this.current = -1;
-    this.files.refreshFolders()
+    this.files.refreshFolders();
+    this.cdr.detectChanges();
   }
   toedit() {
     this.company = this.folder;
@@ -41,26 +47,25 @@ export class MenuComponent {
     this.files.getFolder(this.company);
   }
   tocompany() {
-    this.company = undefined
+    this.company = undefined;
   }
-
 
   createLocation() {
     this.dialog
-    .open(TextDialogComponent)
-    .afterClosed()
-    .subscribe((result) => {
-      if (result) {
-        this.files.addImage(this.company!, result);
-      }
-    });
+      .open(TextDialogComponent)
+      .afterClosed()
+      .subscribe((result) => {
+        if (result) {
+          this.files.addImage(this.company!, result);
+        }
+      });
   }
   deleteL() {
     this.files.delLocation(this.company!, this.files.images[this.current]);
-    this.files.getFolder(this.company!)
+    this.files.getFolder(this.company!);
   }
   toCreate() {
-    this.files.goToLocation(this.company!, this.files.images[this.current])
+    this.files.goToLocation(this.company!, this.files.images[this.current]);
   }
 
   goBack() {
@@ -69,9 +74,8 @@ export class MenuComponent {
   }
 
   export() {
-    this.files.export(this.folder)
+    this.files.export(this.folder);
   }
-
 
   // images = this.files.images.map(e => "file://" + this.files.path.replaceAll("\\",'/') + e);
 }
