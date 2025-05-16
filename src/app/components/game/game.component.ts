@@ -355,6 +355,12 @@ export class GameComponent {
     this.c_image = i;
     this.loadJson();
     this.canvasInit();
+    Object.keys(this.monsters.draw).forEach(e => {
+      delete this.monsters.draw[e];
+    })
+    Object.keys(this.gamers.draw).forEach(e => {
+      delete this.gamers.draw[e];
+    })
   }
   eraser() {
     this.erase = !this.erase;
