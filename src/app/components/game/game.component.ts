@@ -59,6 +59,11 @@ export class GameComponent {
   get ctx() {
     return this.canvas.getContext('2d')!;
   }
+  fullscreen = false;
+  toggleFullscreen() {
+    this.fullscreen = !this.fullscreen;
+    this.fullscreen ? openFullscreen() : closeFullscreen();
+  }
   // gavno
   getGamedata() {
     this.http.get('pricol/gamedata.json').subscribe((e: any) => {
@@ -89,7 +94,7 @@ export class GameComponent {
     // private files: ImageFilesService,
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
-    private router: Router,
+    private router: Router
   ) {}
   runWithTimeout(func: () => void) {
     if (this.timeout) clearTimeout(this.timeout);
@@ -113,7 +118,7 @@ export class GameComponent {
             if (px > 0 && px < this.gridSize && py > 0 && py < this.gridSize) {
               if (this.erase) {
                 this.monsters.draw[e] = this.monsters.draw[e].filter(
-                  (e) => e != c,
+                  (e) => e != c
                 );
               } else {
                 this.current_fishka = new fishka(c, true, e);
@@ -142,7 +147,7 @@ export class GameComponent {
           if (this.current_fishka.monster) {
             const draw = this.monsters.draw[this.current_fishka.color];
             this.monsters.draw[this.current_fishka.color] = draw.filter(
-              (e) => e !== this.current_fishka?.coord,
+              (e) => e !== this.current_fishka?.coord
             );
             this.monsters.draw[this.current_fishka.color].push(coord);
           } else {
@@ -211,7 +216,7 @@ export class GameComponent {
       if (this.img)
         this.scale = Math.max(
           document.documentElement.clientWidth / this.img.width,
-          document.documentElement.clientHeight / this.img.height,
+          document.documentElement.clientHeight / this.img.height
         );
       this.canvas = document.querySelector('#canvas1') as HTMLCanvasElement;
       this.doScale(old_scale);
@@ -319,7 +324,7 @@ export class GameComponent {
   createCircle(
     d: coord | undefined = this.gamers.tmp,
     color: string | undefined = this.gamers.current,
-    monster = false,
+    monster = false
   ) {
     if (!d || !color) return;
     this.ctx.fillStyle = color;
@@ -337,7 +342,7 @@ export class GameComponent {
 
   createRect(
     rect: tymanRect = this.tmp_tyman!,
-    color: string = this.color_of_tyman,
+    color: string = this.color_of_tyman
   ) {
     if (!rect) return;
     this.ctx.fillStyle = color;
@@ -355,12 +360,12 @@ export class GameComponent {
     this.c_image = i;
     this.loadJson();
     this.canvasInit();
-    Object.keys(this.monsters.draw).forEach(e => {
+    Object.keys(this.monsters.draw).forEach((e) => {
       delete this.monsters.draw[e];
-    })
-    Object.keys(this.gamers.draw).forEach(e => {
+    });
+    Object.keys(this.gamers.draw).forEach((e) => {
       delete this.gamers.draw[e];
-    })
+    });
   }
   eraser() {
     this.erase = !this.erase;
@@ -368,6 +373,11 @@ export class GameComponent {
     this.gamers.current = undefined;
   }
 }
+
+
+
+
+
 interface coord {
   x: number;
   y: number;
@@ -426,4 +436,28 @@ class fishka {
   coord: coord;
   monster: boolean;
   color: string;
+}
+function openFullscreen(elem = document.documentElement) {
+  if (elem.requestFullscreen) {
+    elem.requestFullscreen();
+  }
+  // else if (elem.mozRequestFullScreen) { /* Firefox */
+  //   elem.mozRequestFullScreen();
+  // } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari, Opera */
+  //   elem.webkitRequestFullscreen();
+  // } else if (elem.msRequestFullscreen) { /* IE/Edge */
+  //   elem.msRequestFullscreen();
+  // }
+}
+function closeFullscreen() {
+  if (document.exitFullscreen) {
+    document.exitFullscreen();
+  }
+  // else if (document.mozCancelFullScreen) { /* Firefox */
+  //   document.mozCancelFullScreen();
+  // } else if (document.webkitExitFullscreen) { /* Chrome, Safari, Opera */
+  //   document.webkitExitFullscreen();
+  // } else if (document.msExitFullscreen) { /* IE/Edge */
+  //   document.msExitFullscreen();
+  // }
 }
