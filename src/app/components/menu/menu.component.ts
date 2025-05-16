@@ -33,6 +33,7 @@ export class MenuComponent {
   deleteC() {
     this.files.deleteCompany(this.folder);
     this.current = -1;
+    this.files.refreshFolders()
   }
   toedit() {
     this.company = this.folder;
