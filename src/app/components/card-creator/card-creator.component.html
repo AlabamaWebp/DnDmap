@@ -59,6 +59,9 @@
       <button mat-flat-button [disabled]="!current_tyman" (click)="deleteTyman()">Удалить туман</button>
     </div>
     }
+    <div class="flexwrap">
+      <mat-checkbox class="example-margin" [(ngModel)]="grid" (ngModelChange)="drawGrid()">Отображать сетку</mat-checkbox>
+    </div>
 
     <button mat-flat-button (click)="saveAll()">Сохранить</button>
     <button mat-button (click)="goBack()">На главную</button>

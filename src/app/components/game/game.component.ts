@@ -51,6 +51,7 @@ export class GameComponent {
   monsters = new monster(['rgb(109, 33, 33)', 'rgb(37, 37, 37)']);
   no_gamedata = true;
   loading = true;
+  grid: boolean = false;
   gamers = new gamer([
     'rgb(252, 161, 176)',
     'rgb(51, 51, 131)',
@@ -264,6 +265,7 @@ export class GameComponent {
         'size',
         'tyman',
         'scale',
+        "grid"
       ];
       const t: any = this;
       for (const e of vars) {
@@ -295,22 +297,23 @@ export class GameComponent {
     this.cdr.detectChanges();
     this.ctx.clearRect(0, 0, this.width1, this.height1); // Очистка this.canvas
     this.ctx.drawImage(this.img, 0, 0, this.width1, this.height1);
-
-    this.ctx.strokeStyle = 'rgba(0,0,0,0.8)'; // Цвет и прозрачность линий
-    this.ctx.lineWidth = this.lineWidth;
-    // Рисуем вертикальные линии
-    for (let x = this.x; x < this.width1; x += this.gridSize) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(x, 0);
-      this.ctx.lineTo(x, this.height1);
-      this.ctx.stroke();
-    }
-    // Рисуем горизонтальные линии
-    for (let y = this.y; y < this.height1; y += this.gridSize) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(0, y);
-      this.ctx.lineTo(this.width1, y);
-      this.ctx.stroke();
+    if (this.grid) {
+      this.ctx.strokeStyle = 'rgba(0,0,0,0.8)'; // Цвет и прозрачность линий
+      this.ctx.lineWidth = this.lineWidth;
+      // Рисуем вертикальные линии
+      for (let x = this.x; x < this.width1; x += this.gridSize) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(x, 0);
+        this.ctx.lineTo(x, this.height1);
+        this.ctx.stroke();
+      }
+      // Рисуем горизонтальные линии
+      for (let y = this.y; y < this.height1; y += this.gridSize) {
+        this.ctx.beginPath();
+        this.ctx.moveTo(0, y);
+        this.ctx.lineTo(this.width1, y);
+        this.ctx.stroke();
+      }
     }
     this.tyman.forEach((e) => {
       this.createRect(e);
