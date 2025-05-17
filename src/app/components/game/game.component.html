@@ -56,6 +56,9 @@
     </div>
     <div class="flex">
       <div class="abs">Монстрики</div>
+      <div class="gamer" [class.selected]="treangle" (click)="toggleTreangle()">
+        <mat-icon>filter_list</mat-icon>
+      </div>
       <div class="gamer" [class.selected]="erase" (click)="eraser()">
         <mat-icon>gavel</mat-icon>
       </div>

@@ -46,6 +46,8 @@ export class GameComponent {
   timeout?: any;
   images: string[] = [];
   c_image!: string;
+  treangle = false;
+  treangle_coord?: { from: coord; to?: coord };
   erase = false;
   current_fishka?: fishka;
   monsters = new monster(['rgb(109, 33, 33)', 'rgb(37, 37, 37)']);
@@ -82,13 +84,10 @@ export class GameComponent {
   }
   selectObj(target: string, monster = false) {
     const obj = monster ? this.monsters : this.gamers;
-    const to_deslect = !monster ? this.monsters : this.gamers;
-    to_deslect.current = undefined;
-    to_deslect.tmp = undefined;
-    if (obj.current != target) obj.current = target;
-    else obj.current = undefined;
-    obj.tmp = undefined;
-    this.erase = false;
+    if (obj.current != target) {
+      this.sbros_all();
+      obj.current = target;
+    } else obj.current = undefined;
     this.drawGrid();
   }
 
@@ -116,7 +115,7 @@ export class GameComponent {
       this.clickedX = x;
       this.clickedY = y;
       this.isClicked = true;
-      if (!this.gamers.current && !this.monsters.current) {
+      if (!this.gamers.current && !this.monsters.current && !this.treangle) {
         const is_fishka = !!this.current_fishka;
         Object.keys(this.monsters.draw).forEach((e) => {
           for (const c of this.monsters.draw[e]) {
@@ -162,6 +161,17 @@ export class GameComponent {
           }
           this.current_fishka = undefined;
         }
+      }
+
+      if (this.treangle) {
+        if (!this.treangle_coord)
+          this.treangle_coord = {
+            from: {
+              x: this.getCoordTmp(x, this.x),
+              y: this.getCoordTmp(y, this.y),
+            },
+          };
+        else this.treangle_coord.to = { x: x, y: y };
       }
       this.gamers.addToDraw();
       this.monsters.addToDraw();
@@ -265,7 +275,7 @@ export class GameComponent {
         'size',
         'tyman',
         'scale',
-        "grid"
+        'grid',
       ];
       const t: any = this;
       for (const e of vars) {
@@ -329,6 +339,97 @@ export class GameComponent {
         this.createCircle(el, c, true);
       });
     });
+
+    // if (this.treangle_coord?.to) {
+    //   const A = this.treangle_coord.from;
+    //   const B = this.treangle_coord.to;
+    //   const dx = B.x - A.x;
+    //   const dy = B.y - A.y;
+    //   const len = Math.sqrt(dx * dx + dy * dy);
+
+    //   const angle = (22.5 * Math.PI) / 180;
+
+    //   const cos = Math.cos(-angle);
+    //   const sin = Math.sin(-angle);
+    //   const dx2 = dx * cos - dy * sin;
+    //   const dy2 = dx * sin + dy * cos;
+
+    //   const C = { x: A.x + dx2, y: A.y + dy2 };
+
+    //   // Рисуем треугольник
+    //   this.ctx.beginPath();
+    //   this.ctx.strokeText("123", A.x, A.y, 50);
+    //   this.ctx.moveTo(A.x, A.y);
+    //   this.ctx.lineTo(B.x, B.y);
+    //   this.ctx.lineTo(C.x, C.y);
+    //   this.ctx.closePath();
+    //   this.ctx.strokeStyle = 'blue';
+    //   this.ctx.lineWidth = 3;
+    //   this.ctx.stroke();
+    // }
+    if (this.treangle_coord?.to) {
+      const A = this.treangle_coord.from;
+      const B = this.treangle_coord.to;
+      const dx = B.x - A.x;
+      const dy = B.y - A.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+
+      const angle = (22.5 * Math.PI) / 180;
+
+      // Косинус и синус для поворота на -angle
+      const cos = Math.cos(-angle);
+      const sin = Math.sin(-angle);
+      const dx2 = dx * cos - dy * sin;
+      const dy2 = dx * sin + dy * cos;
+      const C = { x: A.x + dx2, y: A.y + dy2 };
+
+      // Косинус и синус для поворота на +angle (для второго треугольника)
+      const cos2 = Math.cos(angle);
+      const sin2 = Math.sin(angle);
+      const dx3 = dx * cos2 - dy * sin2;
+      const dy3 = dx * sin2 + dy * cos2;
+      const D = { x: A.x + dx3, y: A.y + dy3 };
+
+      // Рисуем первый треугольник
+      this.ctx.beginPath();
+      this.ctx.moveTo(A.x, A.y);
+      this.ctx.lineTo(B.x, B.y);
+      this.ctx.lineTo(C.x, C.y);
+      this.ctx.closePath();
+      this.ctx.strokeStyle = 'white';
+      this.ctx.lineWidth = 3;
+      this.ctx.stroke();
+
+      // Рисуем второй треугольник с другой стороны
+      this.ctx.beginPath();
+      this.ctx.moveTo(A.x, A.y);
+      this.ctx.lineTo(B.x, B.y);
+      this.ctx.lineTo(D.x, D.y);
+      this.ctx.closePath();
+      this.ctx.strokeStyle = 'white';
+      this.ctx.lineWidth = 3;
+      this.ctx.stroke();
+
+      // Подписываем длину вектора вдоль линии
+      const midX = (A.x + B.x) / 2;
+      const midY = (A.y + B.y) / 2;
+      this.ctx.font = '25px Arial';
+      this.ctx.strokeStyle = 'black';
+      this.ctx.fillStyle = 'white';
+      this.ctx.textAlign = 'center';
+      this.ctx.textBaseline = 'middle';
+      const len2 =
+        Number(((len / this.gridSize) * this.size).toFixed(0)) + ' Футов';
+      this.ctx.strokeText(len2, midX, midY);
+      this.ctx.fillText(len2, midX, midY);
+    }
+    if (this.treangle_coord?.from) {
+      const A = this.treangle_coord?.from;
+      this.ctx.fillStyle = 'red';
+      this.ctx.beginPath();
+      this.ctx.arc(A.x, A.y, 5, 0, 2 * Math.PI);
+      this.ctx.fill();
+    }
   }
   createCircle(
     d: coord | undefined = this.gamers.tmp,
@@ -463,9 +564,25 @@ export class GameComponent {
     });
   }
   eraser() {
-    this.erase = !this.erase;
-    this.monsters.current = undefined;
+    const tmp = !this.erase;
+    this.sbros_all();
+    this.erase = tmp;
+  }
+  toggleTreangle() {
+    const tmp = !this.treangle;
+    this.sbros_all();
+    this.treangle = tmp;
+    if (!this.treangle) this.treangle_coord = undefined;
+    this.drawGrid();
+  }
+  sbros_all() {
     this.gamers.current = undefined;
+    this.gamers.tmp = undefined;
+    this.monsters.current = undefined;
+    this.monsters.tmp = undefined;
+    this.erase = false;
+    this.treangle = false;
+    this.treangle_coord = undefined;
   }
 }
 
@@ -482,7 +599,7 @@ class fishki {
   current?: string;
 }
 class gamer extends fishki {
-  constructor(all: string[], count = 0) {
+  constructor(all: string[], count = 1) {
     super(all);
     this.all_backup = all.slice();
     this.count = count;

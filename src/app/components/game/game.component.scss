@@ -36,7 +36,10 @@
   align-items: center;
   display: flex;
   & > mat-icon {
-    font-size: 23px;
+    $w: 20px;
+    font-size: $w;
+    width: $w;
+    height: $w;
     transform: scale(1.5);
   }
 }
