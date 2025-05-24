@@ -135,7 +135,9 @@ export class GameComponent {
             y: this.getCoordTmp(y, this.y),
           };
           Object.keys(this.saved_figures).forEach((k) => {
-            is_erased = this.saved_figures[k].some(v => (v.from.x === coord.x && v.from.y === coord.y));
+            is_erased = this.saved_figures[k].some(
+              (v) => v.from.x === coord.x && v.from.y === coord.y
+            );
             this.saved_figures[k] = this.saved_figures[k].filter((v) => {
               return !(v.from.x === coord.x && v.from.y === coord.y);
             });
@@ -462,8 +464,9 @@ export class GameComponent {
   }
   textToFigure(delitel: number, x: number, y: number) {
     const len2 =
-      Number(((delitel / this.gridSize) * this.size - 2.5).toFixed(0)) +
-      ' Футов';
+      Number(
+        ((delitel / this.gridSize) * this.size - this.size / 2).toFixed(0)
+      ) + ' Футов';
     this.textTo(len2, x, y);
   }
   textTo(text: string, x: number, y: number) {
