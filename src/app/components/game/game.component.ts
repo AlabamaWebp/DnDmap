@@ -463,10 +463,9 @@ export class GameComponent {
     }
   }
   textToFigure(delitel: number, x: number, y: number) {
-    const len2 =
-      Number(
-        ((delitel / this.gridSize) * this.size - this.size / 2).toFixed(0)
-      ) + ' Футов';
+    const foot = (delitel / this.gridSize) * this.size - this.size / 2;
+    const metr = foot * 0.3048;
+    const len2 = `${Number(foot.toFixed(0))}фт (${Number(metr.toFixed(1))}м)`;
     this.textTo(len2, x, y);
   }
   textTo(text: string, x: number, y: number) {
