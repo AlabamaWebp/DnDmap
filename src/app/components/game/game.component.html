@@ -26,17 +26,6 @@
   <div class="menu over">
     @if (!gamers.count) {
     <div class="flex gamers">
-      <!-- <mat-form-field>
-              <mat-label>Кол-во игроков</mat-label>
-              <input matInput type="number" #a />
-              <button
-                matSuffix
-                mat-flat-button
-                (click)="countGamers(a.valueAsNumber)"
-              >
-                ok
-              </button>
-            </mat-form-field> -->
       @for (item of gamers.max; track $index) {
       <div (click)="countGamers(item)" class="players">{{ item }}</div>
       }
@@ -56,8 +45,8 @@
     </div>
     <div class="flex">
       <div class="abs">Монстрики</div>
-      <div class="gamer" [class.selected]="treangle" (click)="toggleTreangle()">
-        <mat-icon>filter_list</mat-icon>
+      <div class="gamer" [class.selected]="figure" (dblclick)="unselectFigure()" (click)="toggleFigure()">
+        <mat-icon>{{figure || "filter_list"}}</mat-icon>
       </div>
       <div class="gamer" [class.selected]="erase" (click)="eraser()">
         <mat-icon>gavel</mat-icon>

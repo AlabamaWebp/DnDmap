@@ -3,7 +3,6 @@ import { tymanRect } from '../card-creator/card-creator.component';
 import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
-import { MatInput } from '@angular/material/input';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
@@ -46,8 +45,8 @@ export class GameComponent {
   timeout?: any;
   images: string[] = [];
   c_image!: string;
-  treangle = false;
-  treangle_coord?: { from: coord; to?: coord };
+  figure: false | figures = false;
+  figure_coord?: { from: coord; to?: coord };
   erase = false;
   current_fishka?: fishka;
   monsters = new monster(['rgb(109, 33, 33)', 'rgb(37, 37, 37)']);
@@ -103,8 +102,9 @@ export class GameComponent {
     private router: Router
   ) {}
   runWithTimeout(func: () => void) {
-    if (this.timeout) clearTimeout(this.timeout);
-    this.timeout = setTimeout(func, 200);
+    // if (this.timeout) clearTimeout(this.timeout);
+    // this.timeout = setTimeout(func, 200);
+    requestAnimationFrame(func);
   }
 
   canvClick(event: MouseEvent) {
@@ -115,7 +115,7 @@ export class GameComponent {
       this.clickedX = x;
       this.clickedY = y;
       this.isClicked = true;
-      if (!this.gamers.current && !this.monsters.current && !this.treangle) {
+      if (!this.gamers.current && !this.monsters.current && !this.figure) {
         const is_fishka = !!this.current_fishka;
         Object.keys(this.monsters.draw).forEach((e) => {
           for (const c of this.monsters.draw[e]) {
@@ -163,15 +163,15 @@ export class GameComponent {
         }
       }
 
-      if (this.treangle) {
-        if (!this.treangle_coord)
-          this.treangle_coord = {
+      if (this.figure) {
+        if (!this.figure_coord)
+          this.figure_coord = {
             from: {
               x: this.getCoordTmp(x, this.x),
               y: this.getCoordTmp(y, this.y),
             },
           };
-        else this.treangle_coord.to = { x: x, y: y };
+        else this.figure_coord.to = { x: x, y: y };
       }
       this.gamers.addToDraw();
       this.monsters.addToDraw();
@@ -329,109 +329,137 @@ export class GameComponent {
       this.createRect(e);
     });
     this.createRect();
-    this.createCircle();
+    this.createFishka();
     Object.keys(this.gamers.draw).forEach((c) => {
-      this.createCircle(this.gamers.draw[c], c);
+      this.createFishka(this.gamers.draw[c], c);
     });
-    this.createCircle(this.monsters.tmp, this.monsters.current, true);
+    this.createFishka(this.monsters.tmp, this.monsters.current, true);
     Object.keys(this.monsters.draw).forEach((c) => {
       this.monsters.draw[c].forEach((el) => {
-        this.createCircle(el, c, true);
+        this.createFishka(el, c, true);
       });
     });
-
-    // if (this.treangle_coord?.to) {
-    //   const A = this.treangle_coord.from;
-    //   const B = this.treangle_coord.to;
-    //   const dx = B.x - A.x;
-    //   const dy = B.y - A.y;
-    //   const len = Math.sqrt(dx * dx + dy * dy);
-
-    //   const angle = (22.5 * Math.PI) / 180;
-
-    //   const cos = Math.cos(-angle);
-    //   const sin = Math.sin(-angle);
-    //   const dx2 = dx * cos - dy * sin;
-    //   const dy2 = dx * sin + dy * cos;
-
-    //   const C = { x: A.x + dx2, y: A.y + dy2 };
-
-    //   // Рисуем треугольник
-    //   this.ctx.beginPath();
-    //   this.ctx.strokeText("123", A.x, A.y, 50);
-    //   this.ctx.moveTo(A.x, A.y);
-    //   this.ctx.lineTo(B.x, B.y);
-    //   this.ctx.lineTo(C.x, C.y);
-    //   this.ctx.closePath();
-    //   this.ctx.strokeStyle = 'blue';
-    //   this.ctx.lineWidth = 3;
-    //   this.ctx.stroke();
-    // }
-    if (this.treangle_coord?.to) {
-      const A = this.treangle_coord.from;
-      const B = this.treangle_coord.to;
-      const dx = B.x - A.x;
-      const dy = B.y - A.y;
-      const len = Math.sqrt(dx * dx + dy * dy);
-
-      const angle = (22.5 * Math.PI) / 180;
-
-      // Косинус и синус для поворота на -angle
-      const cos = Math.cos(-angle);
-      const sin = Math.sin(-angle);
-      const dx2 = dx * cos - dy * sin;
-      const dy2 = dx * sin + dy * cos;
-      const C = { x: A.x + dx2, y: A.y + dy2 };
-
-      // Косинус и синус для поворота на +angle (для второго треугольника)
-      const cos2 = Math.cos(angle);
-      const sin2 = Math.sin(angle);
-      const dx3 = dx * cos2 - dy * sin2;
-      const dy3 = dx * sin2 + dy * cos2;
-      const D = { x: A.x + dx3, y: A.y + dy3 };
-
-      // Рисуем первый треугольник
-      this.ctx.beginPath();
-      this.ctx.moveTo(A.x, A.y);
-      this.ctx.lineTo(B.x, B.y);
-      this.ctx.lineTo(C.x, C.y);
-      this.ctx.closePath();
-      this.ctx.strokeStyle = 'white';
-      this.ctx.lineWidth = 3;
-      this.ctx.stroke();
-
-      // Рисуем второй треугольник с другой стороны
-      this.ctx.beginPath();
-      this.ctx.moveTo(A.x, A.y);
-      this.ctx.lineTo(B.x, B.y);
-      this.ctx.lineTo(D.x, D.y);
-      this.ctx.closePath();
-      this.ctx.strokeStyle = 'white';
-      this.ctx.lineWidth = 3;
-      this.ctx.stroke();
-
-      // Подписываем длину вектора вдоль линии
-      const midX = (A.x + B.x) / 2;
-      const midY = (A.y + B.y) / 2;
-      this.ctx.font = '25px Arial';
-      this.ctx.strokeStyle = 'black';
-      this.ctx.fillStyle = 'white';
-      this.ctx.textAlign = 'center';
-      this.ctx.textBaseline = 'middle';
-      const len2 =
-        Number(((len / this.gridSize) * this.size).toFixed(0)) + ' Футов';
-      this.ctx.strokeText(len2, midX, midY);
-      this.ctx.fillText(len2, midX, midY);
-    }
-    if (this.treangle_coord?.from) {
-      const A = this.treangle_coord?.from;
+    if (this.figure == 'circle') this.createCircle();
+    else if (this.figure == 'rectangle') this.createRectangle();
+    else if (this.figure == 'filter_list') this.createTreangle();
+    if (this.figure_coord?.from) {
+      const A = this.figure_coord?.from;
       this.ctx.fillStyle = 'red';
       this.ctx.beginPath();
       this.ctx.arc(A.x, A.y, 5, 0, 2 * Math.PI);
       this.ctx.fill();
     }
   }
-  createCircle(
+  createRectangle() {
+    if (this.figure_coord?.to) {
+      const center = this.figure_coord.from;
+      const poc = this.figure_coord.to;
+      // const sideLength = Math.sqrt(
+      //   Math.pow(pointOnCircumference.x - center.x, 2) +
+      //     Math.pow(pointOnCircumference.y - center.y, 2)
+      // );
+      const sideLength = Math.max(
+        Math.abs(center.x - poc.x),
+        Math.abs(center.y - poc.y)
+      )
+      const topLeft = {
+        x: center.x - sideLength,
+        y: center.y - sideLength,
+      };
+      const side = sideLength * 2;
+      this.ctx.beginPath();
+      this.ctx.rect(topLeft.x, topLeft.y, side, side);
+      this.ctx.strokeStyle = 'white';
+      this.ctx.lineWidth = 3;
+      this.ctx.stroke();
+      this.ctx.beginPath();
+      this.ctx.moveTo(center.x, center.y);
+      this.ctx.lineTo(poc.x, poc.y);
+      this.ctx.stroke();
+      const midX = (center.x + poc.x) / 2;
+      const midY = (center.y + poc.y) / 2;
+      this.textToFigure(sideLength, midX, midY);
+    }
+  }
+  createCircle() {
+    if (this.figure_coord?.to) {
+      const center = this.figure_coord.from;
+      const pointOnCircumference = this.figure_coord.to;
+
+      const radius = Math.sqrt(
+        Math.pow(pointOnCircumference.x - center.x, 2) +
+          Math.pow(pointOnCircumference.y - center.y, 2)
+      );
+
+      this.ctx.beginPath();
+      this.ctx.arc(center.x, center.y, radius, 0, 2 * Math.PI);
+      this.ctx.strokeStyle = 'white';
+      this.ctx.lineWidth = 3;
+      this.ctx.stroke();
+      this.ctx.beginPath();
+      this.ctx.moveTo(center.x, center.y);
+      this.ctx.lineTo(pointOnCircumference.x, pointOnCircumference.y);
+      this.ctx.stroke();
+
+      const midX = (center.x + pointOnCircumference.x) / 2;
+      const midY = (center.y + pointOnCircumference.y) / 2;
+      this.textToFigure(radius, midX, midY);
+    }
+  }
+  createTreangle() {
+    if (this.figure_coord?.to) {
+      const A = this.figure_coord.from;
+      const B = this.figure_coord.to;
+      const dx = B.x - A.x;
+      const dy = B.y - A.y;
+      const len = Math.sqrt(dx * dx + dy * dy);
+
+      const angle = (22.5 * Math.PI) / 180;
+      const cos = Math.cos(-angle);
+      const sin = Math.sin(-angle);
+      const dx2 = dx * cos - dy * sin;
+      const dy2 = dx * sin + dy * cos;
+      const C = { x: A.x + dx2, y: A.y + dy2 };
+      const cos2 = Math.cos(angle);
+      const sin2 = Math.sin(angle);
+      const dx3 = dx * cos2 - dy * sin2;
+      const dy3 = dx * sin2 + dy * cos2;
+      const D = { x: A.x + dx3, y: A.y + dy3 };
+      this.ctx.strokeStyle = 'white';
+      this.ctx.lineWidth = 3;
+      this.ctx.beginPath();
+      this.ctx.moveTo(A.x, A.y);
+      this.ctx.lineTo(B.x, B.y);
+      this.ctx.lineTo(C.x, C.y);
+      this.ctx.closePath();
+      this.ctx.stroke();
+      this.ctx.beginPath();
+      this.ctx.moveTo(A.x, A.y);
+      this.ctx.lineTo(B.x, B.y);
+      this.ctx.lineTo(D.x, D.y);
+      this.ctx.closePath();
+      this.ctx.stroke();
+      const midX = (A.x + B.x) / 2;
+      const midY = (A.y + B.y) / 2;
+      this.textToFigure(len, midX, midY);
+    }
+  }
+  textToFigure(delitel: number, x: number, y: number) {
+    const len2 =
+      Number(((delitel / this.gridSize) * this.size - 2.5).toFixed(0)) +
+      ' Футов';
+    this.textTo(len2, x, y);
+  }
+  textTo(text: string, x: number, y: number) {
+    this.ctx.font = '25px Arial';
+    this.ctx.strokeStyle = 'black';
+    this.ctx.fillStyle = 'white';
+    this.ctx.textAlign = 'center';
+    this.ctx.textBaseline = 'middle';
+    this.ctx.strokeText(text, x, y);
+    this.ctx.fillText(text, x, y);
+  }
+  createFishka(
     d: coord | undefined = this.gamers.tmp,
     color: string | undefined = this.gamers.current,
     monster = false
@@ -484,65 +512,7 @@ export class GameComponent {
       rect.h
     );
     this.ctx.drawImage(blurCanvas, rect.x, rect.y);
-    // this.ctx.filter = 'none';
-    // this.ctx.drawImage(this.img_tyman, rect.x, rect.y, rect.w, rect.h);
   }
-
-  // async createRect(
-  //   rect: tymanRect = this.tmp_tyman!,
-  //   color: string = this.color_of_tyman
-  // ) {
-  //   if (!rect) return;
-  //   const imagePath: string = 'assets/tyman.jpg';
-  //   const blurRadius: number = 1000;
-  //   if (!this.img_tyman) {
-  //     this.img_tyman = await new Promise<HTMLImageElement>(
-  //       (resolve, reject) => {
-  //         const image = new window.Image();
-  //         image.src = imagePath;
-  //         image.onload = () => resolve(image);
-  //         image.onerror = reject;
-  //       }
-  //     );
-  //   }
-  //   const imgCanvas = document.createElement('canvas');
-  //   imgCanvas.width = rect.w;
-  //   imgCanvas.height = rect.h;
-  //   imgCanvas.getContext('2d')!.drawImage(this.img_tyman, 0, 0, rect.w, rect.h);
-  //   this.ctx.drawImage(imgCanvas, rect.x, rect.y);
-  // }
-
-  // createRect(
-  //   rect: tymanRect = this.tmp_tyman!,
-  //   color: string = this.color_of_tyman
-  // ) {
-  //   if (!rect) return;
-
-  //   this.ctx.save();
-
-  //   // Задаем фильтр размытия для мягкости тумана
-  //   this.ctx.filter = 'blur(10px)';
-
-  //   // Создаем линейный градиент от белого (или светло-серого) к прозрачному
-  //   // для эффекта объемного тумана
-  //   const gradient = this.ctx.createRadialGradient(
-  //     rect.x + rect.w / 2,
-  //     rect.y + rect.h / 2,
-  //     Math.min(rect.w, rect.h) / 4,
-  //     rect.x + rect.w / 2,
-  //     rect.y + rect.h / 2,
-  //     Math.max(rect.w, rect.h) / 2
-  //   );
-  //   gradient.addColorStop(0, 'rgb(179, 179, 179)'); // плотный светлый центр
-  //   gradient.addColorStop(1, 'rgb(175, 175, 175)');   // прозрачные края
-
-  //   this.ctx.fillStyle = gradient;
-
-  //   // Заполняем всю прямоугольную область градиентом
-  //   this.ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
-
-  //   this.ctx.restore();
-  // }
 
   removeGamer(gamer: string) {
     delete this.gamers.draw[gamer];
@@ -568,12 +538,19 @@ export class GameComponent {
     this.sbros_all();
     this.erase = tmp;
   }
-  toggleTreangle() {
-    const tmp = !this.treangle;
+  toggleFigure() {
+    const figures: figures[] = ['filter_list', 'circle', 'rectangle'];
+    let tmp = this.figure;
+    let current = (tmp ? figures.indexOf(tmp) : -1) + 1;
+    if (current == figures.length) tmp = figures[0];
+    else tmp = figures[current];
     this.sbros_all();
-    this.treangle = tmp;
-    if (!this.treangle) this.treangle_coord = undefined;
+    this.figure = tmp;
     this.drawGrid();
+  }
+  unselectFigure() {
+    this.figure = false;
+    this.figure_coord = undefined;
   }
   sbros_all() {
     this.gamers.current = undefined;
@@ -581,11 +558,13 @@ export class GameComponent {
     this.monsters.current = undefined;
     this.monsters.tmp = undefined;
     this.erase = false;
-    this.treangle = false;
-    this.treangle_coord = undefined;
+    this.figure = false;
+    this.figure_coord = undefined;
   }
 }
 
+type figures = 'filter_list' | 'circle' | 'rectangle';
+// треугольник, круг, квадрат
 interface coord {
   x: number;
   y: number;
