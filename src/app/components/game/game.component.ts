@@ -56,10 +56,10 @@ export class GameComponent {
   grid: boolean = false;
   gamers = new gamer([
     'rgb(252, 161, 176)',
-    'rgb(51, 51, 131)',
-    'rgb(148, 51, 51)',
-    'rgb(148, 117, 51)',
-    'rgb(51, 148, 91)',
+    'rgb(120, 201, 233)',
+    'rgb(247, 83, 83)',
+    'rgb(187, 129, 241)',
+    'rgb(68, 248, 143)',
   ]);
   get ctx() {
     return this.canvas.getContext('2d')!;
@@ -95,10 +95,7 @@ export class GameComponent {
     this.gamers.changeGamersCount(n);
   }
 
-  constructor(
-    private http: HttpClient,
-    private cdr: ChangeDetectorRef,
-  ) {}
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
   runWithTimeout(func: () => void) {
     requestAnimationFrame(func);
   }
@@ -111,17 +108,7 @@ export class GameComponent {
       this.clickedX = x;
       this.clickedY = y;
       this.isClicked = true;
-      if (this.erase) { // только для фигур стёрка
-        const coord = {
-          x: this.getCoordTmp(x, this.x),
-          y: this.getCoordTmp(y, this.y),
-        };
-        Object.keys(this.saved_figures).forEach((k) => {
-          this.saved_figures[k] = this.saved_figures[k].filter((v) => {
-            return !(v.from.x === coord.x && v.from.y === coord.y);
-          });
-        });
-      }
+      let is_erased = false;
       if (!this.gamers.current && !this.monsters.current && !this.figure) {
         const is_fishka = !!this.current_fishka;
         Object.keys(this.monsters.draw).forEach((e) => {
@@ -133,6 +120,7 @@ export class GameComponent {
                 this.monsters.draw[e] = this.monsters.draw[e].filter(
                   (e) => e != c
                 );
+                is_erased = true;
               } else {
                 this.current_fishka = new fishka(c, true, e);
               }
@@ -140,14 +128,27 @@ export class GameComponent {
             }
           }
         });
+        if (this.erase && !is_erased) {
+          // только для фигур стёрка
+          const coord = {
+            x: this.getCoordTmp(x, this.x),
+            y: this.getCoordTmp(y, this.y),
+          };
+          Object.keys(this.saved_figures).forEach((k) => {
+            is_erased = this.saved_figures[k].some(v => (v.from.x === coord.x && v.from.y === coord.y));
+            this.saved_figures[k] = this.saved_figures[k].filter((v) => {
+              return !(v.from.x === coord.x && v.from.y === coord.y);
+            });
+          });
+        }
         Object.keys(this.gamers.draw).forEach((e) => {
           const c = this.gamers.draw[e];
           const px = x - c.x + this.gridSize / 2;
           const py = y - c.y + this.gridSize / 2;
           if (px > 0 && px < this.gridSize && py > 0 && py < this.gridSize) {
-            if (this.erase) {
+            if (this.erase && !is_erased) {
               delete this.gamers.draw[e];
-            } else {
+            } else if (!is_erased) {
               this.current_fishka = new fishka(c, false, e);
             }
           }
