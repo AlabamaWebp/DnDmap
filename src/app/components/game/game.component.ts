@@ -96,15 +96,10 @@ export class GameComponent {
   }
 
   constructor(
-    // private elec: ElectronService,
-    // private files: ImageFilesService,
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
-    private router: Router
   ) {}
   runWithTimeout(func: () => void) {
-    // if (this.timeout) clearTimeout(this.timeout);
-    // this.timeout = setTimeout(func, 200);
     requestAnimationFrame(func);
   }
 
@@ -116,7 +111,7 @@ export class GameComponent {
       this.clickedX = x;
       this.clickedY = y;
       this.isClicked = true;
-      if (this.erase) {
+      if (this.erase) { // только для фигур стёрка
         const coord = {
           x: this.getCoordTmp(x, this.x),
           y: this.getCoordTmp(y, this.y),
@@ -378,10 +373,6 @@ export class GameComponent {
     if (f?.to) {
       const center = f.from;
       const poc = f.to;
-      // const sideLength = Math.sqrt(
-      //   Math.pow(pointOnCircumference.x - center.x, 2) +
-      //     Math.pow(pointOnCircumference.y - center.y, 2)
-      // );
       const sideLength = Math.max(
         Math.abs(center.x - poc.x),
         Math.abs(center.y - poc.y)
