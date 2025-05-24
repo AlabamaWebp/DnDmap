@@ -44,9 +44,17 @@
       }
     </div>
     <div class="flex">
-      <div class="abs">Монстрики</div>
-      <div class="gamer" [class.selected]="figure" (dblclick)="unselectFigure()" (click)="toggleFigure()">
-        <mat-icon>{{figure || "filter_list"}}</mat-icon>
+      <div class="abs">Инструментики и монстрики</div>
+      <div class="gamer" [class.dis]="!figure" (click)="saveFigure()">
+        <mat-icon>save</mat-icon>
+      </div>
+      <div
+        class="gamer"
+        [class.selected]="figure"
+        (dblclick)="unselectFigure()"
+        (click)="toggleFigure()"
+      >
+        <mat-icon>{{ figure || "filter_list" }}</mat-icon>
       </div>
       <div class="gamer" [class.selected]="erase" (click)="eraser()">
         <mat-icon>gavel</mat-icon>

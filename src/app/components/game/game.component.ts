@@ -46,7 +46,8 @@ export class GameComponent {
   images: string[] = [];
   c_image!: string;
   figure: false | figures = false;
-  figure_coord?: { from: coord; to?: coord };
+  figure_coord?: figure_coord;
+  saved_figures: { [i: string]: figure_coord[] } = {};
   erase = false;
   current_fishka?: fishka;
   monsters = new monster(['rgb(109, 33, 33)', 'rgb(37, 37, 37)']);
@@ -105,7 +106,6 @@ export class GameComponent {
     // if (this.timeout) clearTimeout(this.timeout);
     // this.timeout = setTimeout(func, 200);
     requestAnimationFrame(func);
-    
   }
 
   canvClick(event: MouseEvent) {
@@ -116,6 +116,17 @@ export class GameComponent {
       this.clickedX = x;
       this.clickedY = y;
       this.isClicked = true;
+      if (this.erase) {
+        const coord = {
+          x: this.getCoordTmp(x, this.x),
+          y: this.getCoordTmp(y, this.y),
+        };
+        Object.keys(this.saved_figures).forEach((k) => {
+          this.saved_figures[k] = this.saved_figures[k].filter((v) => {
+            return !(v.from.x === coord.x && v.from.y === coord.y);
+          });
+        });
+      }
       if (!this.gamers.current && !this.monsters.current && !this.figure) {
         const is_fishka = !!this.current_fishka;
         Object.keys(this.monsters.draw).forEach((e) => {
@@ -340,9 +351,12 @@ export class GameComponent {
         this.createFishka(el, c, true);
       });
     });
-    if (this.figure == 'circle') this.createCircle();
-    else if (this.figure == 'rectangle') this.createRectangle();
-    else if (this.figure == 'filter_list') this.createTreangle();
+    this.figureChoice();
+    Object.keys(this.saved_figures).forEach((k) => {
+      this.saved_figures[k].forEach((v) => {
+        this.figureChoice(k, v as any);
+      });
+    });
     if (this.figure_coord?.from) {
       const A = this.figure_coord?.from;
       this.ctx.fillStyle = 'red';
@@ -351,10 +365,19 @@ export class GameComponent {
       this.ctx.fill();
     }
   }
-  createRectangle() {
-    if (this.figure_coord?.to) {
-      const center = this.figure_coord.from;
-      const poc = this.figure_coord.to;
+  figureChoice(
+    f: string | false = this.figure,
+    f2: figure_coord | undefined = this.figure_coord
+  ) {
+    if (!f || !f2) return;
+    else if (f == 'circle') this.createCircle(f2!);
+    else if (f == 'rectangle') this.createRectangle(f2!);
+    else if (f == 'filter_list') this.createTreangle(f2!);
+  }
+  createRectangle(f: figure_coord) {
+    if (f?.to) {
+      const center = f.from;
+      const poc = f.to;
       // const sideLength = Math.sqrt(
       //   Math.pow(pointOnCircumference.x - center.x, 2) +
       //     Math.pow(pointOnCircumference.y - center.y, 2)
@@ -382,10 +405,10 @@ export class GameComponent {
       this.textToFigure(sideLength, midX, midY);
     }
   }
-  createCircle() {
-    if (this.figure_coord?.to) {
-      const center = this.figure_coord.from;
-      const pointOnCircumference = this.figure_coord.to;
+  createCircle(f: figure_coord) {
+    if (f?.to) {
+      const center = f.from;
+      const pointOnCircumference = f.to;
 
       const radius = Math.sqrt(
         Math.pow(pointOnCircumference.x - center.x, 2) +
@@ -407,10 +430,10 @@ export class GameComponent {
       this.textToFigure(radius, midX, midY);
     }
   }
-  createTreangle() {
-    if (this.figure_coord?.to) {
-      const A = this.figure_coord.from;
-      const B = this.figure_coord.to;
+  createTreangle(f: figure_coord) {
+    if (f?.to) {
+      const A = f.from;
+      const B = f.to;
       const dx = B.x - A.x;
       const dy = B.y - A.y;
       const len = Math.sqrt(dx * dx + dy * dy);
@@ -562,8 +585,20 @@ export class GameComponent {
     this.figure = false;
     this.figure_coord = undefined;
   }
+  saveFigure() {
+    if (this.figure) {
+      const tmp = this.saved_figures[this.figure] ?? [];
+      this.saved_figures[this.figure] = [...tmp, this.figure_coord!];
+      this.sbros_all();
+      this.drawGrid();
+    }
+  }
 }
 
+interface figure_coord {
+  from: coord;
+  to?: coord;
+}
 type figures = 'filter_list' | 'circle' | 'rectangle';
 // треугольник, круг, квадрат
 interface coord {
