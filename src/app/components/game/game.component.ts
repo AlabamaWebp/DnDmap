@@ -105,6 +105,7 @@ export class GameComponent {
     // if (this.timeout) clearTimeout(this.timeout);
     // this.timeout = setTimeout(func, 200);
     requestAnimationFrame(func);
+    
   }
 
   canvClick(event: MouseEvent) {
@@ -361,7 +362,7 @@ export class GameComponent {
       const sideLength = Math.max(
         Math.abs(center.x - poc.x),
         Math.abs(center.y - poc.y)
-      )
+      );
       const topLeft = {
         x: center.x - sideLength,
         y: center.y - sideLength,
@@ -626,26 +627,8 @@ class fishka {
   color: string;
 }
 function openFullscreen(elem = document.documentElement) {
-  if (elem.requestFullscreen) {
-    elem.requestFullscreen();
-  }
-  // else if (elem.mozRequestFullScreen) { /* Firefox */
-  //   elem.mozRequestFullScreen();
-  // } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari, Opera */
-  //   elem.webkitRequestFullscreen();
-  // } else if (elem.msRequestFullscreen) { /* IE/Edge */
-  //   elem.msRequestFullscreen();
-  // }
+  elem.requestFullscreen();
 }
 function closeFullscreen() {
-  if (document.exitFullscreen) {
-    document.exitFullscreen();
-  }
-  // else if (document.mozCancelFullScreen) { /* Firefox */
-  //   document.mozCancelFullScreen();
-  // } else if (document.webkitExitFullscreen) { /* Chrome, Safari, Opera */
-  //   document.webkitExitFullscreen();
-  // } else if (document.msExitFullscreen) { /* IE/Edge */
-  //   document.msExitFullscreen();
-  // }
+  document.exitFullscreen();
 }
