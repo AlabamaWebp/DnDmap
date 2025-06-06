@@ -501,35 +501,42 @@ export class GameComponent {
     color: string = this.color_of_tyman
   ) {
     if (!rect) return;
-    const imagePath = 'assets/tyman.jpg';
-    if (!this.img_tyman) {
-      this.img_tyman = await new Promise<HTMLImageElement>(
-        (resolve, reject) => {
-          const image = new Image();
-          image.src = imagePath;
-          image.onload = () => resolve(image);
-          image.onerror = reject;
-        }
-      );
-    }
+    // const imagePath = 'assets/tyman.jpg';
+    // if (!this.img_tyman) {
+    //   this.img_tyman = await new Promise<HTMLImageElement>(
+    //     (resolve, reject) => {
+    //       const image = new Image();
+    //       image.src = imagePath;
+    //       image.onload = () => resolve(image);
+    //       image.onerror = reject;
+    //     }
+    //   );
+    // }
     // Создаём canvas для размытого слоя
-    const blurCanvas = document.createElement('canvas');
-    const scale = 0; // немного увеличиваем для размытия краёв
-    const scaledWidth = rect.w;
-    const scaledHeight = rect.h;
-    blurCanvas.width = scaledWidth;
-    blurCanvas.height = scaledHeight;
-    const blurCtx = blurCanvas.getContext('2d')!;
-    // Применяем размытие и рисуем увеличенное изображение для размытия краёв
-    blurCtx.filter = 'blur(5px)';
-    blurCtx.drawImage(
-      this.img_tyman,
-      (rect.w - scaledWidth) / 2 + scale,
-      (rect.h - scaledHeight) / 2 + scale,
+    // const blurCanvas = document.createElement('canvas');
+    // const scale = 0; // немного увеличиваем для размытия краёв
+    // const scaledWidth = rect.w;
+    // const scaledHeight = rect.h;
+    this.ctx.fillStyle = 'white';
+    this.ctx.fillRect(
+      rect.x,
+      rect.y,
       rect.w,
       rect.h
     );
-    this.ctx.drawImage(blurCanvas, rect.x, rect.y);
+    // blurCanvas.width = scaledWidth;
+    // blurCanvas.height = scaledHeight;
+    // const blurCtx = blurCanvas.getContext('2d')!;
+    // Применяем размытие и рисуем увеличенное изображение для размытия краёв
+    // blurCtx.filter = 'blur(5px)';
+    // blurCtx.drawImage(
+    //   this.img_tyman,
+    // (rect.w - scaledWidth) / 2 + scale,
+    // (rect.h - scaledHeight) / 2 + scale,
+    // rect.w,
+    // rect.h
+    // );
+    // this.ctx.drawImage(blurCanvas, rect.x, rect.y);
   }
 
   removeGamer(gamer: string) {
