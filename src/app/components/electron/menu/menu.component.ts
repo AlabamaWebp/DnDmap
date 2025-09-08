@@ -1,8 +1,8 @@
 import { ChangeDetectorRef, Component } from '@angular/core';
-import { ImageFilesService } from '../../shared/services/image-files.service';
+import { ImageFilesService } from '../../../shared/services/image-files.service';
 import { MatButtonModule } from '@angular/material/button';
 import { MatDialog } from '@angular/material/dialog';
-import { TextDialogComponent } from '../../shared/components/text-dialog/text-dialog.component';
+import { TextDialogComponent } from '../../../shared/components/text-dialog/text-dialog.component';
 import { Router } from '@angular/router';
 
 @Component({

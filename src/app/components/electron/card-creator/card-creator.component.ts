@@ -4,8 +4,8 @@ import {
   HostListener,
   OnInit,
 } from '@angular/core';
-import { ElectronService } from '../../shared/services/electron.service';
-import { ImageFilesService } from '../../shared/services/image-files.service';
+import { ElectronService } from '../../../shared/services/electron.service';
+import { ImageFilesService } from '../../../shared/services/image-files.service';
 import { MatSliderModule } from '@angular/material/slider';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';

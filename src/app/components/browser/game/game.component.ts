@@ -1,5 +1,5 @@
 import { Router } from '@angular/router';
-import { tymanRect } from '../card-creator/card-creator.component';
+import { tymanRect } from '../../electron/card-creator/card-creator.component';
 import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
