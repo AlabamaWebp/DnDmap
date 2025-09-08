@@ -68,7 +68,10 @@ export class GameComponent {
       this.gamers.changeGamersCount(Number(g));
     }
   }
-
+  countGamers(n: number) {
+    this.gamers.changeGamersCount(n);
+    localStorage.setItem('gamers', n + '');
+  }
   get ctx() {
     return this.canvas.getContext('2d')!;
   }
@@ -97,11 +100,6 @@ export class GameComponent {
       obj.current = target;
     } else obj.current = undefined;
     this.drawGrid();
-  }
-
-  countGamers(n: number) {
-    this.gamers.changeGamersCount(n);
-    localStorage.setItem('gamers', n + '');
   }
 
   runWithTimeout(func: () => void) {

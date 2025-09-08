@@ -180,14 +180,8 @@ export class CardCreatorComponent implements OnInit {
   }
 
   drawGrid() {
-    // this.scale = Math.min(
-    //   this.width1 / this.img.width,
-    //   this.height1 / this.img.height
-    // );
     this.width1 = this.img.width * this.scale;
     this.height1 = this.img.height * this.scale;
-    // this.canvas.width = this.width1;
-    // this.canvas.height = this.height1;
     this.cdr.detectChanges();
     this.ctx.clearRect(0, 0, this.width1, this.height1); // Очистка this.canvas
     this.ctx.drawImage(this.img, 0, 0, this.width1, this.height1);
