@@ -54,13 +54,21 @@ export class GameComponent {
   no_gamedata = true;
   loading = true;
   grid: boolean = false;
-  gamers = new gamer([
+  gamers: Gamers = new Gamers([
     'rgb(252, 161, 176)',
     'rgb(120, 201, 233)',
     'rgb(247, 83, 83)',
     'rgb(187, 129, 241)',
     'rgb(68, 248, 143)',
   ]);
+
+  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {
+    const g = localStorage.getItem('gamers');
+    if (g) {
+      this.gamers.changeGamersCount(Number(g));
+    }
+  }
+
   get ctx() {
     return this.canvas.getContext('2d')!;
   }
@@ -93,9 +101,9 @@ export class GameComponent {
 
   countGamers(n: number) {
     this.gamers.changeGamersCount(n);
+    localStorage.setItem('gamers', n + '');
   }
 
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {}
   runWithTimeout(func: () => void) {
     requestAnimationFrame(func);
   }
@@ -211,7 +219,7 @@ export class GameComponent {
       this.isMoved = true;
       this.drawGrid();
     }
-    let obj: monster | gamer | undefined = this.gamers.current
+    let obj: monster | Gamers | undefined = this.gamers.current
       ? this.gamers
       : undefined;
     if (this.monsters.current) obj = this.monsters;
@@ -518,12 +526,7 @@ export class GameComponent {
     // const scaledWidth = rect.w;
     // const scaledHeight = rect.h;
     this.ctx.fillStyle = 'white';
-    this.ctx.fillRect(
-      rect.x,
-      rect.y,
-      rect.w,
-      rect.h
-    );
+    this.ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
     // blurCanvas.width = scaledWidth;
     // blurCanvas.height = scaledHeight;
     // const blurCtx = blurCanvas.getContext('2d')!;
@@ -614,8 +617,8 @@ class fishki {
   tmp?: coord;
   current?: string;
 }
-class gamer extends fishki {
-  constructor(all: string[], count = 1) {
+class Gamers extends fishki {
+  constructor(all: string[], count = 0) {
     super(all);
     this.all_backup = all.slice();
     this.count = count;
