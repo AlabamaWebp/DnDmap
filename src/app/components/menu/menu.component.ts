@@ -29,6 +29,7 @@ export class MenuComponent {
       .subscribe((result) => {
         if (result) {
           this.files.createFolder(result);
+          this.toedit(result)
         }
       });
   }
@@ -41,8 +42,8 @@ export class MenuComponent {
     this.files.refreshFolders();
     this.cdr.detectChanges();
   }
-  toedit() {
-    this.company = this.folder;
+  toedit(folder = this.folder) {
+    this.company = folder;
     this.current = -1;
     this.files.getFolder(this.company);
   }
@@ -63,6 +64,7 @@ export class MenuComponent {
   deleteL() {
     this.files.delLocation(this.company!, this.files.images[this.current]);
     this.files.getFolder(this.company!);
+    this.cdr.detectChanges()
   }
   toCreate() {
     this.files.goToLocation(this.company!, this.files.images[this.current]);
@@ -76,6 +78,8 @@ export class MenuComponent {
   export() {
     this.files.export(this.folder);
   }
-
+  get is_selected() {
+    return this.current === -1;
+  }
   // images = this.files.images.map(e => "file://" + this.files.path.replaceAll("\\",'/') + e);
 }
