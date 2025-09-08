@@ -22,34 +22,28 @@ export class ImageFilesService {
     }
   }
   getFolder(folder: string) {
-    const data = this.elec.fs.readdirSync(this.plib(this.path, folder));
+    const data = this.elec.fs.readdirSync(this.pjoin(this.path, folder));
     // const types = ['jpg', 'jpeg', 'png', 'webp'];
     // this.images = data.filter((e) => types.some((t) => e.includes(t)));
     this.jsons = data.filter((e) => e.includes('.json'));
     this.images = data.filter((e) => !e.includes('.json'));
   }
   createFolder(name: string) {
-    this.elec.fs.mkdirSync(this.plib(this.path, name));
+    this.elec.fs.mkdirSync(this.pjoin(this.path, name));
     this.refreshFolders();
   }
   deleteCompany(company: string) {
-    this.elec.fs.rmdir(
-      this.plib(this.path, company),
-      { recursive: true },
-      (err) => {
-        if (err) throw err;
-        console.log('Папка и все вложенные файлы удалены');
-        this.refreshFolders();
-      }
-    );
+    this.elec.fs.rmdirSync(this.pjoin(this.path, company), { recursive: true });
+    this.refreshFolders();
+    console.log('Папка и все вложенные файлы удалены');
   }
   saveImage(image: string, name: string) {}
   images!: string[];
   jsons!: string[];
   folders!: string[];
   // public path = this.elec.platform == "win32" ?  'C:/pricol/' : "~/pricol"; // Путь для сохранения изображений
-  plib = this.elec.path.join;
-  public path = this.plib(
+  pjoin = this.elec.path.join;
+  public path = this.pjoin(
     (window as any).process.env.HOME || (window as any).process.env.USERPROFILE,
     'pricol/'
   ); // Путь для сохранения изображений
@@ -78,7 +72,7 @@ export class ImageFilesService {
   async saveImagePath(fileName: string, file: Buffer, compmany: string) {
     // const fullPath = this.plib(this.path, compmany, this.images.length + "." + fileName.split(".").at(-1)!);
 
-    const fullPath = this.plib(this.path, compmany, fileName);
+    const fullPath = this.pjoin(this.path, compmany, fileName);
     console.log(fullPath);
     this.elec.fs.writeFileSync(fullPath, file);
     this.getFolder(compmany);
@@ -91,18 +85,18 @@ export class ImageFilesService {
     this.router.navigate(['create']);
   }
   delLocation(company: string, location: string) {
-    let d = this.plib(this.path, company, location);
+    let d = this.pjoin(this.path, company, location);
     if (this.elec.fs.existsSync(d)) this.elec.fs.rmSync(d);
     d += '.json';
     if (this.elec.fs.existsSync(d)) this.elec.fs.rmSync(d);
   }
   export(c: string) {
-    const p = this.plib(window.process.cwd(), 'src', 'pricol');
+    const p = this.pjoin(window.process.cwd(), 'src', 'pricol');
     this.elec.fs.mkdirSync(p, { recursive: true });
     this.elec.fs.cpSync(this.path + c, p, { recursive: true });
     this.getFolder(c);
     this.elec.fs.writeFileSync(
-      this.plib(p, 'gamedata.json'),
+      this.pjoin(p, 'gamedata.json'),
       JSON.stringify(this.images)
     );
   }
