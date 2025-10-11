@@ -10,8 +10,10 @@
   <div><p class="cw">(или другая ошибка)</p></div>
 </div>
 } @else {
-<div class="wrapper">
+<div class="wrapper over"
+>
   <canvas
+    #canvas
     id="canvas1"
     class="canvas1"
     (mousedown)="canvClick($event)"
@@ -22,6 +24,59 @@
     [style.height]="height1 + 'px'"
     [style.width]="width1 + 'px'"
   ></canvas>
+  @if (admin_panel) {
+  <div class="admin over">
+    <button
+      title="Сменить локацию {{ tyman.length ? '' : '(их нет)' }}"
+      class="gamer"
+      [matMenuTriggerFor]="menu"
+      [disabled]="!images.length"
+    >
+      <mat-icon>navigate_next</mat-icon>
+      <mat-menu #menu>
+        @for (item of images; track $index) { @if (item !== c_image) {
+        <button mat-menu-item (click)="goTo(item)">
+          Перейти на {{ item }}
+        </button>
+        } }
+      </mat-menu>
+    </button>
+    <button
+      title="Удалить туман {{ tyman.length ? '' : '(их нет)' }}"
+      class="gamer"
+      [disabled]="!tyman.length"
+      [matMenuTriggerFor]="menu2"
+    >
+      <mat-icon>visibility_off</mat-icon>
+      <mat-menu #menu2>
+        @for (item of tyman; track $index) {
+        <button mat-menu-item (click)="delTyman(item.id)">
+          Удалить туман {{ item.id }}
+        </button>
+        }
+      </mat-menu>
+    </button>
+    <div
+      class="gamer"
+      title="Сбросить количество игроков"
+      (click)="gamers.count = 0"
+    >
+      <mat-icon>restart_alt</mat-icon>
+    </div>
+
+    <div class="gamer" [class.selected]="erase" (click)="eraser()">
+      <mat-icon>gavel</mat-icon>
+    </div>
+    @for (item of monsters.all; track $index) {
+    <div
+      class="monster"
+      (click)="selectObj(item, true)"
+      [class.selected]="monsters.current && monsters.current === item"
+      [style.backgroundColor]="item"
+    ></div>
+    }
+  </div>
+  }
   <div class="foll"></div>
   <div class="menu over">
     @if (!gamers.count) {
@@ -32,7 +87,7 @@
     </div>
     } @else {
     <div class="flex">
-      <div class="abs">Игроки</div>
+      <!-- <div class="abs">Игроки</div> -->
       @for (item of gamers.all; track $index) {
       <div
         class="gamer"
@@ -44,7 +99,10 @@
       }
     </div>
     <div class="flex">
-      <div class="abs">Инструментики и монстрики</div>
+      <div class="gamer" (click)="admin_panel = !admin_panel">
+        <mat-icon>security</mat-icon>
+      </div>
+      <!-- <div class="abs">Инструментики и монстрики</div> -->
       <div class="gamer" [class.dis]="!figure" (click)="saveFigure()">
         <mat-icon>save</mat-icon>
       </div>
@@ -56,37 +114,8 @@
       >
         <mat-icon>{{ figure || "filter_list" }}</mat-icon>
       </div>
-      <div class="gamer" [class.selected]="erase" (click)="eraser()">
-        <mat-icon>gavel</mat-icon>
-      </div>
-      @for (item of monsters.all; track $index) {
-      <div
-        class="monster"
-        (click)="selectObj(item, true)"
-        [class.selected]="monsters.current && monsters.current === item"
-        [style.backgroundColor]="item"
-      ></div>
-      }
-
-      <div class="gamer" [matMenuTriggerFor]="menu">
-        <mat-icon>menu</mat-icon>
-        <mat-menu #menu>
-          @for (item of tyman; track $index) {
-          <button mat-menu-item (click)="delTyman(item.id)">
-            Удалить туман {{ item.id }}
-          </button>
-          } @for (item of images; track $index) { @if (item !== c_image) {
-          <button mat-menu-item (click)="goTo(item)">
-            Перейти на {{ item }}
-          </button>
-          } }
-          <button mat-menu-item (click)="gamers.count = 0">
-            Поменять кол-во игроков
-          </button>
-          <button mat-menu-item (click)="toggleFullscreen()">
-            Полный экран
-          </button>
-        </mat-menu>
+      <div class="gamer" (click)="toggleFullscreen()">
+        <mat-icon>fullscreen</mat-icon>
       </div>
     </div>
     }

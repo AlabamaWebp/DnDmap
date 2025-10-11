@@ -1,6 +1,11 @@
 import { Router } from '@angular/router';
 import { tymanRect } from '../../electron/card-creator/card-creator.component';
-import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
+import {
+  ChangeDetectorRef,
+  Component,
+  HostListener,
+  ViewChild,
+} from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
@@ -19,16 +24,25 @@ import { HttpClient } from '@angular/common/http';
     MatMenuModule,
   ],
   templateUrl: './game.component.html',
-  styleUrl: './game.component.scss',
+  // styleUrl: './game.component.scss',
+  styles: [
+    `
+      @import './game.component.scss';
+    `,
+  ],
 })
 export class GameComponent {
   gridSize = 80; // Размер сетки по умолчанию
   lineWidth = 1; // Ширина линий по умолчанию
   x = 0.5;
   y = 0.5;
-  width1 = document.documentElement.clientWidth - 300;
-  height1 = document.documentElement.clientHeight;
-  canvas!: HTMLCanvasElement;
+  width1 = -2;
+  height1 = -2;
+  @ViewChild('canvas')
+  canvas_!: { nativeElement: HTMLCanvasElement };
+  get canvas() {
+    return this.canvas_.nativeElement;
+  }
   img!: HTMLImageElement;
   clickedX = 0;
   clickedY = 0;
@@ -61,6 +75,8 @@ export class GameComponent {
     'rgb(187, 129, 241)',
     'rgb(68, 248, 143)',
   ]);
+
+  admin_panel = false;
 
   constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {
     const g = localStorage.getItem('gamers');
@@ -244,25 +260,26 @@ export class GameComponent {
 
   @HostListener('window:resize')
   resize() {
-    this.runWithTimeout(() => {
+    requestAnimationFrame(() => {
       const old_scale = this.scale;
+      // alert(
+      //   `${document.documentElement.offsetWidth} ${document.documentElement.offsetHeight}`
+      // )
       if (this.img)
         this.scale = Math.max(
-          document.documentElement.clientWidth / this.img.width,
-          document.documentElement.clientHeight / this.img.height
+          document.documentElement.offsetWidth / this.img.width,
+          document.documentElement.offsetHeight / this.img.height
         );
-      this.canvas = document.querySelector('#canvas1') as HTMLCanvasElement;
+      // console.log(this.scale);
+      // this.scale -= 0.1;
       this.doScale(old_scale);
-      setTimeout(() => {
-        this.drawGrid();
-      }, 1);
+      this.drawGrid();
       this.cdr.detectChanges();
     });
   }
 
   ngOnInit() {
     this.getGamedata();
-    this.canvas = document.querySelector('#canvas1') as HTMLCanvasElement;
   }
 
   canvasInit() {
@@ -318,8 +335,12 @@ export class GameComponent {
   }
 
   drawGrid() {
-    this.width1 = this.img.width * this.scale;
-    this.height1 = this.img.height * this.scale;
+    this.width1 = Math.floor(this.img.width * this.scale);
+    this.height1 = Math.floor(this.img.height * this.scale);
+    // alert(`
+    //   ${this.width1}
+    //   ${this.height1}
+    //   `)
     this.cdr.detectChanges();
     this.ctx.clearRect(0, 0, this.width1, this.height1); // Очистка this.canvas
     this.ctx.drawImage(this.img, 0, 0, this.width1, this.height1);

@@ -2,25 +2,44 @@
   // display: flex;
   height: 100%;
   width: 100%;
+  // overflow: hidden;
 }
+$menu_height: 80px;
 .foll {
-  height: 130px;
+  height: $menu_height;
 }
 .menu {
   position: fixed;
   bottom: 0;
   right: 0;
   left: 0;
-  height: 130px;
+  height: $menu_height;
   background-color: #000000bb;
   border-radius: 30% 30% 0 0;
-  padding: 15px 20px;
-  box-sizing: border-box;
+  padding: 10px;
   display: flex;
   justify-content: space-between;
   align-items: center;
   & > * {
     margin: 0 10px;
+  }
+}
+.admin {
+  background-color: #000000bb;
+  position: fixed;
+  top: 0;
+  left: 0;
+  // bottom: $menu_height;
+  // width: 100px;
+  border-radius: 0 0 20px 0;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  // justify-content: center;
+  align-items: center;
+  color: white;
+  .gamer, .monster {
+    margin: 5px 0;
   }
 }
 .test {
@@ -129,7 +148,13 @@ h1 {
 }
 .over {
   overflow: auto;
+  scroll-behavior: unset;
 }
 .dis {
   opacity: 0.5;
 }
+// .canvas1 {
+//   position: fixed;
+//   top: 0;
+//   left: 0;
+// }
