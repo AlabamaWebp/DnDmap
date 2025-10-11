@@ -262,16 +262,13 @@ export class GameComponent {
   resize() {
     requestAnimationFrame(() => {
       const old_scale = this.scale;
-      // alert(
-      //   `${document.documentElement.offsetWidth} ${document.documentElement.offsetHeight}`
-      // )
-      if (this.img)
-        this.scale = Math.max(
-          document.documentElement.offsetWidth / this.img.width,
-          document.documentElement.offsetHeight / this.img.height
-        );
-      // console.log(this.scale);
-      // this.scale -= 0.1;
+      if (this.img) {
+        // this.scale = Math.max(
+        //   document.documentElement.offsetWidth / this.img.width,
+        //   document.documentElement.offsetHeight / this.img.height
+        // );
+        this.scale = document.documentElement.offsetWidth / this.img.width;
+      }
       this.doScale(old_scale);
       this.drawGrid();
       this.cdr.detectChanges();
@@ -340,6 +337,10 @@ export class GameComponent {
     // alert(`
     //   ${this.width1}
     //   ${this.height1}
+    //   ${document.documentElement.offsetWidth / this.img.width}
+    //   ${document.documentElement.offsetHeight / this.img.height}
+    //   ${document.documentElement.offsetWidth}
+    //   ${document.documentElement.offsetHeight}
     //   `)
     this.cdr.detectChanges();
     this.ctx.clearRect(0, 0, this.width1, this.height1); // Очистка this.canvas
