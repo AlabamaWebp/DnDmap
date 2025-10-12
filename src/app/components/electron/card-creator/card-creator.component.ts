@@ -107,7 +107,16 @@ export class CardCreatorComponent implements OnInit {
     const data = this.old_data;
     // const vars = ['gridSize', 'lineWidth', 'x', 'y', 'width1', 'height1', 'size'];
     if (data.version != this.version) return;
-    const vars = ['gridSize', 'lineWidth', 'x', 'y', 'size', 'tyman', 'scale', "grid"];
+    const vars = [
+      'gridSize',
+      'lineWidth',
+      'x',
+      'y',
+      'size',
+      'tyman',
+      'scale',
+      'grid',
+    ];
     const t: any = this;
     for (const e of vars) {
       t[e] = data[e];
@@ -339,7 +348,7 @@ export class CardCreatorComponent implements OnInit {
         tyman: this.tyman,
         scale: this.scale,
         version: this.version,
-        grid: this.grid
+        grid: this.grid,
       },
       null,
       4
@@ -374,10 +383,10 @@ export class CardCreatorComponent implements OnInit {
 }
 export interface tymanRect {
   id: string;
-  // func: (color?: string) => void;
   x: number;
   y: number;
   w: number;
   h: number;
+  // func: (color?: string) => void;
   // [i: string]: number
 }

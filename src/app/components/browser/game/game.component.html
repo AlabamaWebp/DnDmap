@@ -18,11 +18,11 @@
     (mousedown)="canvClick($event)"
     (mousemove)="canvMove($event)"
     (mouseleave)="clearTmp()"
-    [width]="width1"
-    [height]="height1"
-    [style.height]="height1 + 'px'"
-    [style.width]="width1 + 'px'"
+    [width]="canvas_params.size.x"
+    [height]="canvas_params.size.y"
   ></canvas>
+  <!-- [style.height]="height1 + 'px'"
+    [style.width]="width1 + 'px'" -->
   @if (admin_panel) {
   <div class="admin over">
     <button
@@ -102,16 +102,16 @@
         <mat-icon>security</mat-icon>
       </div>
       <!-- <div class="abs">Инструментики и монстрики</div> -->
-      <div class="gamer" [class.dis]="!figure" (click)="saveFigure()">
+      <div class="gamer" [class.dis]="!current_figure" (click)="saveFigure()">
         <mat-icon>save</mat-icon>
       </div>
       <div
         class="gamer"
-        [class.selected]="figure"
+        [class.selected]="current_figure"
         (dblclick)="unselectFigure()"
         (click)="toggleFigure()"
       >
-        <mat-icon>{{ figure || "filter_list" }}</mat-icon>
+        <mat-icon>{{ current_figure || "filter_list" }}</mat-icon>
       </div>
       <div class="gamer" (click)="toggleFullscreen()">
         <mat-icon>fullscreen</mat-icon>
