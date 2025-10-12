@@ -3,6 +3,7 @@ import { tymanRect } from '../../electron/card-creator/card-creator.component';
 import {
   ChangeDetectorRef,
   Component,
+  ElementRef,
   HostListener,
   ViewChild,
 } from '@angular/core';
@@ -12,6 +13,7 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { HttpClient } from '@angular/common/http';
+import { CanvasGameService } from './canvas-game.service';
 
 @Component({
   standalone: true,
@@ -23,6 +25,7 @@ import { HttpClient } from '@angular/common/http';
     MatIcon,
     MatMenuModule,
   ],
+  providers: [CanvasGameService],
   templateUrl: './game.component.html',
   // styleUrl: './game.component.scss',
   styles: [
@@ -38,12 +41,11 @@ export class GameComponent {
   y = 0.5;
   width1 = -2;
   height1 = -2;
-  @ViewChild('canvas')
-  canvas_!: { nativeElement: HTMLCanvasElement };
+  @ViewChild('canvas1')
+  private canvas_!: ElementRef;
   get canvas() {
     return this.canvas_.nativeElement;
   }
-  img!: HTMLImageElement;
   clickedX = 0;
   clickedY = 0;
   isClicked = false;
@@ -77,8 +79,17 @@ export class GameComponent {
   ]);
 
   admin_panel = false;
-
-  constructor(private http: HttpClient, private cdr: ChangeDetectorRef) {
+  get img() {
+    return this.cs.img;
+  }
+  ngOnInit() {
+    this.getGamedata();
+  }
+  constructor(
+    private http: HttpClient,
+    private cdr: ChangeDetectorRef,
+    private cs: CanvasGameService
+  ) {
     const g = localStorage.getItem('gamers');
     if (g) {
       this.gamers.changeGamersCount(Number(g));
@@ -99,12 +110,15 @@ export class GameComponent {
   getGamedata() {
     this.http.get('pricol/gamedata.json').subscribe({
       next: (e: any) => {
+        this.loading = false;
         this.images = e;
         this.c_image = this.images[0];
         this.loadJson();
-        this.canvasInit();
         this.no_gamedata = false;
-        this.loading = false;
+        this.runWithTimeout(() => {
+          this.cs.init(this.canvas);
+          this.canvasInit();
+        })
       },
       error: () => {},
     });
@@ -260,7 +274,7 @@ export class GameComponent {
 
   @HostListener('window:resize')
   resize() {
-    requestAnimationFrame(() => {
+    this.runWithTimeout(() => {
       const old_scale = this.scale;
       if (this.img) {
         // this.scale = Math.max(
@@ -270,28 +284,17 @@ export class GameComponent {
         this.scale = document.documentElement.offsetWidth / this.img.width;
       }
       this.doScale(old_scale);
-      this.drawGrid();
-      this.cdr.detectChanges();
+      this.runWithTimeout(() => {
+        this.drawGrid();
+      });
     });
   }
 
-  ngOnInit() {
-    this.getGamedata();
-  }
-
   canvasInit() {
-    this.img = new Image();
-    this.img.src = 'pricol/' + this.c_image;
-    this.img.onload = () => {
-      const old_scale = this.scale;
+    this.cs.setImage(this.c_image).then(() => {
       this.resize();
-      this.doScale(old_scale);
-      this.ctx.imageSmoothingEnabled = true;
-      this.ctx.imageSmoothingQuality = 'high';
-      this.cdr.detectChanges();
-
-      this.drawGrid(); // Рисуем сетку
-    };
+      this.drawGrid();
+    });
   }
 
   loadJson() {
