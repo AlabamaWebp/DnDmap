@@ -473,6 +473,26 @@ export class GameComponent {
       this.refreshCanvas();
     }
   }
+  @HostListener('window:keyup', ['$event'])
+  keyboard(event: KeyboardEvent) {
+    switch (event.key.toLowerCase()) {
+      case 'q':
+        if (this.admin_panel) this.erase = !this.erase;
+        break;
+      case 'w':
+        if (this.admin_panel) this.selectObj(this.monsters.all[0], true);
+        break;
+      case 'e':
+        if (this.admin_panel) this.selectObj(this.monsters.all[1], true);
+        break;
+      case 'capslock':
+        this.admin_panel = !this.admin_panel;
+        break;
+
+      default:
+        break;
+    }
+  }
 }
 
 // треугольник, круг, квадрат
