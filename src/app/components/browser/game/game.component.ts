@@ -475,17 +475,18 @@ export class GameComponent {
   }
   @HostListener('window:keyup', ['$event'])
   keyboard(event: KeyboardEvent) {
-    switch (event.key.toLowerCase()) {
-      case 'q':
+    console.log(event);
+    switch (event.code) {
+      case 'KeyQ':
         if (this.admin_panel) this.erase = !this.erase;
         break;
-      case 'w':
+      case 'KeyW':
         if (this.admin_panel) this.selectObj(this.monsters.all[0], true);
         break;
-      case 'e':
+      case 'KeyE':
         if (this.admin_panel) this.selectObj(this.monsters.all[1], true);
         break;
-      case 'capslock':
+      case 'CapsLock':
         this.admin_panel = !this.admin_panel;
         break;
 
