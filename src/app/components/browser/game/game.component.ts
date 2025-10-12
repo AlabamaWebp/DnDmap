@@ -142,7 +142,7 @@ export class GameComponent {
         y,
       };
       let is_erased = false;
-      const size = this.canvas_params.grid.grid_size;
+      const size = this.canvas_params.grid.size;
       if (
         !this.gamers.current &&
         !this.monsters.current &&
@@ -254,7 +254,7 @@ export class GameComponent {
     this.refreshCanvas();
   }
   getGridCoord(a: number, b: number) {
-    const size = this.canvas_params.grid.grid_size;
+    const size = this.canvas_params.grid.size;
     return Math.floor((a - b) / size) * size + b + size / 2;
   }
   getGridCoords(x: number, y: number) {
@@ -291,10 +291,10 @@ export class GameComponent {
     this.http.get('pricol/' + this.c_image + '.json').subscribe((data: any) => {
       if (data.version != this.version) return;
       const vars = ['tyman', 'scale'];
-      this.canvas_params.grid.grid_size = data.gridSize;
+      this.canvas_params.grid.size = data.gridSize;
       this.canvas_params.grid.offset.x = data.x;
       this.canvas_params.grid.offset.y = data.y;
-      this.cs.line_width = data.line_width;
+      this.cs.line_width = data.lineWidth;
       this.draw_grid = data.grid;
 
       const t: any = this;
@@ -309,7 +309,7 @@ export class GameComponent {
     const scale = 1 + (this.scale - old_scale) / old_scale;
 
     const grid = this.canvas_params.grid;
-    grid.grid_size = grid.grid_size * scale;
+    grid.size = grid.size * scale;
     grid.offset.x = grid.offset.x * scale;
     grid.offset.y = grid.offset.y * scale;
 
@@ -334,7 +334,6 @@ export class GameComponent {
     if (!rect) return;
     this.cs.drawFilledRect(rect, color);
   }
-
   refreshCanvas() {
     this.calcSize();
     this.cs.clear();

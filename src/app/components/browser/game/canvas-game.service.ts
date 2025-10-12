@@ -24,7 +24,7 @@ export class CanvasGameService {
         x: -1,
         y: -1,
       },
-      grid_size: 80,
+      size: 80,
     },
     size: {
       x: -1,
@@ -54,7 +54,7 @@ export class CanvasGameService {
     for (
       let x = this.params.grid.offset.x;
       x < this.params.size.x;
-      x += this.params.grid.grid_size
+      x += this.params.grid.size
     ) {
       this.ctx.beginPath();
       this.ctx.moveTo(x, 0);
@@ -65,7 +65,7 @@ export class CanvasGameService {
     for (
       let y = this.params.grid.offset.y;
       y < this.params.size.y;
-      y += this.params.grid.grid_size
+      y += this.params.grid.size
     ) {
       this.ctx.beginPath();
       this.ctx.moveTo(0, y);
@@ -83,6 +83,13 @@ export class CanvasGameService {
     this.ctx.fillStyle = color ?? 'white';
     this.ctx.fillRect(rect.x, rect.y, rect.w, rect.h);
   }
+  drawTextFigure(delitel: number, x: number, y: number) {
+    const foot =
+      (delitel / this.params.grid.size) * this.cell_size - this.cell_size / 2;
+    const metr = foot * 0.3048;
+    const len2 = `${Number(foot.toFixed(0))}фт (${Number(metr.toFixed(1))}м)`;
+    this.drawText(len2, x, y);
+  }
   drawText(text: string, x: number, y: number) {
     this.ctx.font = '25px Arial';
     this.ctx.strokeStyle = 'black';
@@ -96,14 +103,7 @@ export class CanvasGameService {
     if (!d || !color) return;
     this.ctx.fillStyle = color;
     this.ctx.beginPath();
-    this.ctx.arc(
-      d.x,
-      d.y,
-      this.params.grid.grid_size / 2,
-      0,
-      2 * Math.PI,
-      false
-    );
+    this.ctx.arc(d.x, d.y, this.params.grid.size / 2, 0, 2 * Math.PI, false);
     this.ctx.fill();
     this.ctx.lineWidth = 3;
     this.ctx.strokeStyle = border_color;
@@ -135,7 +135,7 @@ export class CanvasGameService {
 
       const midX = (A.x + B.x) / 2;
       const midY = (A.y + B.y) / 2;
-      this.drawText(len + '', midX, midY);
+      this.drawTextFigure(len, midX, midY);
     }
   }
   private conusHelper(a: ICoords, b: ICoords, c: ICoords) {
@@ -166,7 +166,7 @@ export class CanvasGameService {
 
     const midX = (center.x + edge.x) / 2;
     const midY = (center.y + edge.y) / 2;
-    this.drawText(radius + '', midX, midY);
+    this.drawTextFigure(radius, midX, midY);
   }
   drawRectangleEdge(f: IVector2d) {
     const center = f.from;
@@ -191,7 +191,7 @@ export class CanvasGameService {
     this.ctx.stroke();
     const midX = (center.x + poc.x) / 2;
     const midY = (center.y + poc.y) / 2;
-    this.drawText(sideLength + '', midX, midY);
+    this.drawTextFigure(sideLength, midX, midY);
   }
   drawDot(A: ICoords) {
     this.ctx.fillStyle = 'red';
@@ -211,7 +211,7 @@ export interface ICanvasParams {
 }
 export interface IGridParameters {
   offset: ICoords;
-  grid_size: number;
+  size: number;
 }
 export interface ICoords {
   x: number;
