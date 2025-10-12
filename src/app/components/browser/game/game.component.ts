@@ -116,7 +116,7 @@ export class GameComponent {
           this.canvasInit();
         });
       },
-      error: () => {},
+      // error: () => {},
     });
   }
   selectObj(target: string, monster = false) {
@@ -132,6 +132,17 @@ export class GameComponent {
     requestAnimationFrame(func);
   }
 
+  private coordObjFinder(mas: ICoords[], x: number, y: number, size: number) {
+    for (const [i, c] of mas.entries()) {
+      const px = x - c.x + size / 2;
+      const py = y - c.y + size / 2;
+      if (px > 0 && px < size && py > 0 && py < size) {
+        return i;
+      }
+    }
+    return -1;
+  }
+
   canvClick(event: MouseEvent) {
     if (event.button === 0) {
       const rect = this.canvas_rect;
@@ -141,56 +152,75 @@ export class GameComponent {
         x,
         y,
       };
-      let is_erased = false;
       const size = this.canvas_params.grid.size;
+
+      let stop = false;
       if (
         !this.gamers.current &&
         !this.monsters.current &&
         !this.current_figure
       ) {
-        const is_fishka = !!this.current_fishka;
-        Object.keys(this.monsters.draw).forEach((e) => {
-          for (const c of this.monsters.draw[e]) {
-            const px = x - c.x + size / 2;
-            const py = y - c.y + size / 2;
-            if (px > 0 && px < size && py > 0 && py < size) {
-              if (this.erase) {
-                this.monsters.draw[e] = this.monsters.draw[e].filter(
-                  (e) => e != c
-                );
-                is_erased = true;
-              } else {
-                this.current_fishka = new fishka(c, true, e);
-              }
+        if (this.erase) {
+          //Удаление
+          // Монстра
+          for (const e in this.monsters.draw) {
+            const i = this.coordObjFinder(this.monsters.draw[e], x, y, size);
+            if (i != -1) {
+              this.monsters.draw[e].splice(i, 1);
+              stop = true;
               break;
             }
           }
-        });
-        if (this.erase && !is_erased) {
-          // только для фигур стёрка
-          const coord = this.getGridCoords(x, y);
-          Object.keys(this.saved_figures).forEach((k) => {
-            is_erased = this.saved_figures[k].some(
-              (v) => v.from.x === coord.x && v.from.y === coord.y
-            );
-            this.saved_figures[k] = this.saved_figures[k].filter((v) => {
-              return !(v.from.x === coord.x && v.from.y === coord.y);
-            });
-          });
-        }
-        Object.keys(this.gamers.draw).forEach((e) => {
-          const c = this.gamers.draw[e];
-          const px = x - c.x + size / 2;
-          const py = y - c.y + size / 2;
-          if (px > 0 && px < size && py > 0 && py < size) {
-            if (this.erase && !is_erased) {
-              delete this.gamers.draw[e];
-            } else if (!is_erased) {
-              this.current_fishka = new fishka(c, false, e);
+          // Игрока
+          if (!stop) {
+            const g = this.gamers.draw;
+            const i = this.coordObjFinder(Object.values(g), x, y, size);
+            if (i != -1) {
+              delete g[Object.keys(g)[i]];
+              stop = true;
             }
           }
-        });
-        if (is_fishka && this.current_fishka) {
+          // Фигуры
+          if (!stop) {
+            const coord = this.getGridCoords(x, y);
+            Object.keys(this.saved_figures).forEach((k) => {
+              stop = this.saved_figures[k].some(
+                (v) => v.from.x === coord.x && v.from.y === coord.y
+              );
+              this.saved_figures[k] = this.saved_figures[k].filter((v) => {
+                return !(v.from.x === coord.x && v.from.y === coord.y);
+              });
+            });
+          }
+        } else {
+          // Выбор
+          // Монстра
+          for (const e in this.monsters.draw) {
+            const i = this.coordObjFinder(this.monsters.draw[e], x, y, size);
+            if (i != -1) {
+              this.current_fishka = new fishka(
+                this.monsters.draw[e][i],
+                true,
+                e
+              );
+              stop = true;
+            }
+          }
+          // Игрока
+          const g = this.gamers.draw;
+          const values = Object.values(g);
+          const i = this.coordObjFinder(values, x, y, size);
+          if (i != -1) {
+            this.current_fishka = new fishka(
+              values[i],
+              false,
+              Object.keys(g)[i]
+            );
+            stop = true;
+          }
+        }
+        if (this.current_fishka && !stop) {
+          // Переставление фишки
           const coord = this.getGridCoords(x, y);
           if (this.current_fishka.monster) {
             const draw = this.monsters.draw[this.current_fishka.color];
@@ -377,7 +407,7 @@ export class GameComponent {
     else if (f == 'filter_list') this.cs.drawConusEdge(f2 as IVector2d);
   }
   createFishka(
-    d: ICoords | undefined = this.gamers.tmp,
+    d: ICoords | undefined = this.current_fishka?.coord,
     color: string | undefined = this.gamers.current,
     monster = false
   ) {
