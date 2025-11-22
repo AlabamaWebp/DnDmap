@@ -1,20 +1,13 @@
 import { tymanRect } from '../../electron/card-creator/card-creator.component';
-import {
-  ChangeDetectorRef,
-  Component,
-  HostListener,
-} from '@angular/core';
+import { ChangeDetectorRef, Component, HostListener } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
 import { MatButtonModule } from '@angular/material/button';
 import { MatIcon } from '@angular/material/icon';
 import { MatMenuModule } from '@angular/material/menu';
 import { HttpClient } from '@angular/common/http';
-import {
-  CanvasGameService,
-  ICoords,
-  IVector2d,
-} from './canvas-game.service';
+import { CanvasGameService, ICoords, IVector2d } from './canvas-game.service';
+import { WebsocketService } from '../../../shared/services/websocket.service';
 
 @Component({
   standalone: true,
@@ -79,12 +72,14 @@ export class GameComponent {
   constructor(
     private http: HttpClient,
     private cdr: ChangeDetectorRef,
-    private cs: CanvasGameService
+    private cs: CanvasGameService,
+    private ws: WebsocketService
   ) {
     const g = localStorage.getItem('gamers');
     if (g) {
       this.gamers.changeGamersCount(Number(g));
     }
+    ws.connect();
   }
   ngOnInit() {
     this.getGamedata();
