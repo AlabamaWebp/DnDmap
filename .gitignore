@@ -54,3 +54,6 @@ Thumbs.db
 
 package-lock.json
 src/pricol
+
+Server/node_modules
+Server/package-lock.json
