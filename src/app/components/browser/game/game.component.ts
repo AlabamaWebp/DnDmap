@@ -1,11 +1,8 @@
-import { Router } from '@angular/router';
 import { tymanRect } from '../../electron/card-creator/card-creator.component';
 import {
   ChangeDetectorRef,
   Component,
-  ElementRef,
   HostListener,
-  ViewChild,
 } from '@angular/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { FormsModule } from '@angular/forms';
@@ -15,9 +12,7 @@ import { MatMenuModule } from '@angular/material/menu';
 import { HttpClient } from '@angular/common/http';
 import {
   CanvasGameService,
-  ICanvasParams,
   ICoords,
-  IGridParameters,
   IVector2d,
 } from './canvas-game.service';
 
@@ -247,7 +242,7 @@ export class GameComponent {
       this.refreshCanvas();
     }
   }
-  @HostListener('document:mouseup', ['event'])
+  @HostListener('document:mouseup', [])
   canvUnclick() {
     if (
       this.type == 'Туман' &&
