@@ -36,13 +36,13 @@ export class GameComponent {
   get canvas_rect() {
     return this.cs.canvas.getBoundingClientRect();
   }
+  private readonly color_of_tyman = 'rgb(0 0 0 / 100%)';
   clicked?: ICoords;
   isMoved = false;
   type: 'Сетка' | 'Туман' = 'Туман';
   img_tyman?: HTMLImageElement;
   tyman: tymanRect[] = [];
   tmp_tyman?: tymanRect;
-  private readonly color_of_tyman = 'rgb(0 0 0 / 100%)';
   scale!: number;
   version = 1;
   timeout?: any;
@@ -82,7 +82,37 @@ export class GameComponent {
     ws.connect();
   }
   ngOnInit() {
+    this.connect();
     this.getGamedata();
+  }
+  ngOnDestroy() {
+    this.ws.disconnect();
+  }
+  connect() {
+    this.ws.connect();
+    this.ws.on('all', (data: ISocketData) => {
+      this.gamers = new Gamers(data.gamers);
+      this.monsters = new monster(data.monsters);
+      this.saved_figures = data.saved_figures;
+      this.tyman = data.tyman;
+      if (this.c_image !== data.img) {
+        this.loadJson();
+        this.runWithTimeout(() => {
+          this.cs.init(document.querySelector('#canvas1')!);
+          this.canvasInit();
+        });
+      } else this.refreshCanvas();
+    });
+  }
+  send() {
+    const d: ISocketData = {
+      img: this.c_image,
+      tyman: this.tyman,
+      monsters: this.monsters.all,
+      gamers: this.gamers.all,
+      saved_figures: this.saved_figures,
+    };
+    this.ws.emit('all', d);
   }
   countGamers(n: number) {
     this.gamers.changeGamersCount(n);
@@ -236,6 +266,8 @@ export class GameComponent {
       this.monsters.addToDraw();
       this.refreshCanvas();
     }
+    // TODO
+    this.send();
   }
   @HostListener('document:mouseup', [])
   canvUnclick() {
@@ -288,11 +320,11 @@ export class GameComponent {
   resize() {
     const old_scale = this.scale;
     if (this.img) {
+      this.scale = document.documentElement.offsetWidth / this.img.width;
       // this.scale = Math.max(
       //   document.documentElement.offsetWidth / this.img.width,
       //   document.documentElement.offsetHeight / this.img.height
       // );
-      this.scale = document.documentElement.offsetWidth / this.img.width;
     }
     this.doScale(old_scale);
     this.runWithTimeout(() => {
@@ -415,6 +447,7 @@ export class GameComponent {
   delTyman(id: string) {
     this.tyman = this.tyman.filter((e) => e.id !== id);
     this.refreshCanvas();
+    this.send();
   }
   goTo(i: string) {
     this.c_image = i;
@@ -426,6 +459,7 @@ export class GameComponent {
     Object.keys(this.gamers.draw).forEach((e) => {
       delete this.gamers.draw[e];
     });
+    this.send();
   }
   eraser() {
     const tmp = !this.erase;
@@ -553,4 +587,11 @@ function openFullscreen(elem = document.documentElement) {
 }
 function closeFullscreen() {
   document.exitFullscreen();
+}
+interface ISocketData {
+  tyman: tymanRect[];
+  img: string;
+  monsters: string[];
+  gamers: string[];
+  saved_figures: { [i: string]: figure_coord[] };
 }
