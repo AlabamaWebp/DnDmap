@@ -1,5 +1,5 @@
-var io = new (require('socket.io')).Server({ cors: "*" });
 var host = 'localhost';
+var io = new (require('socket.io')).Server({ cors: "*" , host: host});
 var port = 4001;
 var clients = [];
 var data = {};
@@ -8,6 +8,10 @@ var data = {};
 
 
 io.on('connection', function (socket) {
+  socket.on('connect', () => {
+    socket.emit('start', data)
+  })
+
   socket.on('all', function (dataAll) {
     data = dataAll
       io.emit("all", dataAll)
