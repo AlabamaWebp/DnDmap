@@ -82,7 +82,6 @@ export class GameComponent {
     ws.connect();
   }
   ngOnInit() {
-    this.connect();
     this.getGamedata();
   }
   ngOnDestroy() {
@@ -139,6 +138,7 @@ export class GameComponent {
         this.runWithTimeout(() => {
           this.cs.init(document.querySelector('#canvas1')!);
           this.canvasInit();
+          this.connect(); 
         });
       },
       // error: () => {},

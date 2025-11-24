@@ -1,4 +1,4 @@
-var host = 'localhost';
+var host = '10.64.206.68';
 var io = new (require('socket.io')).Server({ cors: "*" , host: host});
 var port = 4001;
 var clients = [];
