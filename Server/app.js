@@ -1,28 +1,45 @@
+var io = new (require('socket.io')).Server({ cors: "*" });
+var host = 'localhost';
+var port = 4001;
+var clients = [];
+var data = {};
 
 
-const io = new (require('socket.io')).Server({cors: "*"});
 
-const host = 'localhost';
-const port = 4001;
 
-let clients = [];
+io.on('connection', function (socket) {
+  socket.on('all', function (dataAll) {
+    data = dataAll
+      io.emit("all", dataAll)
+  })
 
-io.on('connection', (socket) => {
-    console.log(`Client with id ${socket.id} connected`);
+    socket.on('start', function (dataStart) {
+      data = dataStart;
+      io.emit('start', data)
+      console.log('start', data)
+    })
+
+    socket.on('newTyman', function (tyman){
+      data.tyman.push(tyman);
+      socket.broadcast.emit('newTyman', data.tyman)
+    })
+    socket.on('deleteTyman', function (tyman){
+      data.tyman.filter(tyman);
+      let index = data.tyman.indexOf(tyman)
+      data.tyman.splice(index, 1)
+      socket.broadcast.emit('deleteTyman', data.tyman)
+    })
+
+    socket.on('updateFiguresPos', function (){
+
+    })
+    console.log("Client with id ".concat(socket.id, " connected"));
     clients.push(socket.id);
-
     socket.emit('message', "I'm server");
-
-    socket.on('message', (message) =>
-        console.log('Message: ', message)
-    );
-
-    socket.on('disconnect', () => {
+    socket.on('disconnect', function () {
         clients.splice(clients.indexOf(socket.id), 1);
-        console.log(
-            `Client with id ${socket.id} disconnected`
-        );
+        console.log("Client with id ".concat(socket.id, " disconnected"));
     });
 });
-io.listen(port)
-console.log(`Server listens http://${host}:${port}`)
+io.listen(port);
+console.log("Server listens http://".concat(host, ":").concat(port));
