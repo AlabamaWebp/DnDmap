@@ -88,28 +88,33 @@ export class GameComponent {
   ngOnDestroy() {
     this.ws.disconnect();
   }
+  onConnect = (data: ISocketData) => {
+    this.gamers.draw = data.gamers;
+    this.monsters.draw = data.monsters;
+    this.saved_figures = data.saved_figures;
+    this.tyman = data.tyman;
+    if (this.c_image !== data.img) {
+      this.loadJson();
+      this.runWithTimeout(() => {
+        this.cs.init(document.querySelector('#canvas1')!);
+        this.canvasInit();
+      });
+    } else this.refreshCanvas();
+  };
   connect() {
     this.ws.connect();
-    this.ws.on('all', (data: ISocketData) => {
-      this.gamers = new Gamers(data.gamers);
-      this.monsters = new monster(data.monsters);
-      this.saved_figures = data.saved_figures;
-      this.tyman = data.tyman;
-      if (this.c_image !== data.img) {
-        this.loadJson();
-        this.runWithTimeout(() => {
-          this.cs.init(document.querySelector('#canvas1')!);
-          this.canvasInit();
-        });
-      } else this.refreshCanvas();
+    this.ws.on('all', this.onConnect);
+    this.ws.on('connect', (e: any) => {
+      if (e) this.onConnect(e);
+      else this.send();
     });
   }
   send() {
     const d: ISocketData = {
       img: this.c_image,
       tyman: this.tyman,
-      monsters: this.monsters.all,
-      gamers: this.gamers.all,
+      monsters: this.monsters.draw,
+      gamers: this.gamers.draw,
       saved_figures: this.saved_figures,
     };
     this.ws.emit('all', d);
@@ -499,7 +504,7 @@ export class GameComponent {
   }
   @HostListener('window:keyup', ['$event'])
   keyboard(event: KeyboardEvent) {
-    console.log(event);
+    // console.log(event);
     switch (event.code) {
       case 'KeyQ':
         if (this.admin_panel) this.erase = !this.erase;
@@ -591,7 +596,7 @@ function closeFullscreen() {
 interface ISocketData {
   tyman: tymanRect[];
   img: string;
-  monsters: string[];
-  gamers: string[];
+  monsters: any;
+  gamers: any;
   saved_figures: { [i: string]: figure_coord[] };
 }
