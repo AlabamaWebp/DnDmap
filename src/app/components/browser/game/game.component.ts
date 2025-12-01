@@ -88,8 +88,17 @@ export class GameComponent {
     this.ws.disconnect();
   }
   onConnect = (data: ISocketData) => {
-    this.gamers.draw = data.gamers;
-    this.monsters.draw = data.monsters;
+    console.log('Prishlo', data);
+    this.gamers.draw = this.convertServerData(
+      data.gamers,
+      false,
+      this.convertCoordsFromServer
+    );
+    this.monsters.draw = this.convertServerData(
+      data.monsters,
+      true,
+      this.convertCoordsFromServer
+    );
     this.saved_figures = data.saved_figures;
     this.tyman = data.tyman;
     if (this.c_image !== data.img) {
@@ -112,11 +121,54 @@ export class GameComponent {
     const d: ISocketData = {
       img: this.c_image,
       tyman: this.tyman,
-      monsters: this.monsters.draw,
-      gamers: this.gamers.draw,
+      monsters: this.convertServerData(this.monsters.draw, true),
+      gamers: this.convertServerData(this.gamers.draw),
       saved_figures: this.saved_figures,
     };
+    console.log('Ushlo', d, JSON.stringify(this.gamers.draw));
     this.ws.emit('all', d);
+  }
+  convertCoordsFromServer = (coords: ICoords): ICoords => {
+    return {
+      x:
+        coords.x * this.canvas_params.grid.size +
+        this.canvas_params.grid.offset.x -
+        this.canvas_params.grid.size / 2,
+      y:
+        coords.y * this.canvas_params.grid.size +
+        this.canvas_params.grid.offset.y -
+        this.canvas_params.grid.size / 2,
+    };
+  };
+  coordsToSend = (coords: ICoords) => {
+    const r: ICoords = {
+      x: Math.ceil(
+        (coords.x - this.canvas_params.grid.offset.x) /
+          this.canvas_params.grid.size
+      ),
+      y: Math.ceil(
+        (coords.y - this.canvas_params.grid.offset.y) /
+          this.canvas_params.grid.size
+      ),
+    };
+    return r;
+  };
+  convertServerData(
+    obj: Record<string, ICoords | ICoords[]>,
+    mas = false,
+    func = this.coordsToSend
+  ) {
+    const tmp: any = {};
+    Object.keys(obj).forEach(
+      mas
+        ? (e) => {
+            tmp[e] = (obj[e] as any).map((i: any) => func(i));
+          }
+        : (e) => {
+            tmp[e] = func(obj[e] as any);
+          }
+    );
+    return tmp;
   }
   countGamers(n: number) {
     this.gamers.changeGamersCount(n);
