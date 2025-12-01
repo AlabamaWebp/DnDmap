@@ -111,10 +111,12 @@ export class GameComponent {
   };
   connect() {
     this.ws.connect();
-    this.ws.on('all', this.onConnect);
-    this.ws.on('connect', (e: any) => {
+    this.ws.on('start', (e: any) => {
       if (e) this.onConnect(e);
       else this.send();
+      console.log('start');
+
+      this.ws.on('all', this.onConnect);
     });
   }
   send() {
@@ -190,7 +192,7 @@ export class GameComponent {
         this.runWithTimeout(() => {
           this.cs.init(document.querySelector('#canvas1')!);
           this.canvasInit();
-          this.connect(); 
+          this.connect();
         });
       },
       // error: () => {},

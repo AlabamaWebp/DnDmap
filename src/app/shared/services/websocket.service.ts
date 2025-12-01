@@ -20,7 +20,9 @@ export class WebsocketService {
     return this.socket ? true : false;
   }
   connect() {
-    this.socket = io('http://10.64.206.189:4001');
+    this.socket = io('http://localhost:4001');
+    this.socket.onAny((a) => {console.log(a);
+    })
   }
   disconnect() {
     this.events.clear();
