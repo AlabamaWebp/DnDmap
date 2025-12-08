@@ -99,8 +99,13 @@ export class GameComponent {
       true,
       this.convertCoordsFromServer
     );
+    if (this.gamers.count !== data.count_gamers) {
+      this.gamers.changeGamersCount(data.count_gamers);
+    }
     // this.saved_figures = data.saved_figures;
-    this.tyman = data.tyman;
+    if (data.tyman.length !== this.tyman.length) {
+      // this.tyman = data.tyman;
+    }
     if (this.c_image !== data.img) {
       this.goTo(data.img, false);
     } else this.refreshCanvas();
@@ -119,6 +124,7 @@ export class GameComponent {
       tyman: this.tyman,
       monsters: this.convertServerData(this.monsters.draw, true),
       gamers: this.convertServerData(this.gamers.draw),
+      count_gamers: this.gamers.count,
       // saved_figures: this.saved_figures,
     };
     console.log('Ushlo', d, JSON.stringify(this.gamers.draw));
@@ -168,7 +174,8 @@ export class GameComponent {
   }
   countGamers(n: number) {
     this.gamers.changeGamersCount(n);
-    localStorage.setItem('gamers', n + '');
+    this.send();
+    // localStorage.setItem('gamers', n + '');
   }
   fullscreen = false;
   toggleFullscreen() {
@@ -646,5 +653,6 @@ interface ISocketData {
   img: string;
   monsters: any;
   gamers: any;
+  count_gamers: number;
   // saved_figures: { [i: string]: figure_coord[] };
 }
