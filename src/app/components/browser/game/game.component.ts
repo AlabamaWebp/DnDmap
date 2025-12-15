@@ -114,6 +114,7 @@ export class GameComponent {
     this.ws.connect();
     this.ws.on('all', this.onConnect);
     this.ws.on('connect', (e: any) => {
+      console.log('connect', e);
       if (e) this.onConnect(e);
       else this.send();
     });
