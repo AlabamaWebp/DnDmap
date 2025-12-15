@@ -21,6 +21,8 @@ export class WebsocketService {
   }
   connect() {
     this.socket = io('http://localhost:4001');
+    this.socket.onAny((a) => {console.log(a);
+    })
   }
   disconnect() {
     this.events.clear();

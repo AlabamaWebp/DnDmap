@@ -82,7 +82,6 @@ export class GameComponent {
     ws.connect();
   }
   ngOnInit() {
-    this.connect();
     this.getGamedata();
   }
   ngOnDestroy() {
@@ -112,11 +111,10 @@ export class GameComponent {
   };
   connect() {
     this.ws.connect();
-    this.ws.on('all', this.onConnect);
-    this.ws.on('connect', (e: any) => {
-      console.log('connect', e);
+    this.ws.on('start', (e: any) => {
       if (e) this.onConnect(e);
       else this.send();
+      this.ws.on('all', this.onConnect);
     });
   }
   send() {
@@ -192,6 +190,7 @@ export class GameComponent {
         this.runWithTimeout(() => {
           this.cs.init(document.querySelector('#canvas1')!);
           this.canvasInit();
+          this.connect();
         });
       },
       // error: () => {},
