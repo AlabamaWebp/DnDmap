@@ -75,10 +75,10 @@ export class GameComponent {
     private cs: CanvasGameService,
     private ws: WebsocketService
   ) {
-    const g = localStorage.getItem('gamers');
-    if (g) {
-      this.gamers.changeGamersCount(Number(g));
-    }
+    // const g = localStorage.getItem('gamers');
+    // if (g) {
+    //   this.gamers.changeGamersCount(Number(g));
+    // }
     ws.connect();
   }
   ngOnInit() {
@@ -99,14 +99,15 @@ export class GameComponent {
       true,
       this.convertCoordsFromServer
     );
-    this.saved_figures = data.saved_figures;
-    this.tyman = data.tyman;
+    if (this.gamers.count !== data.count_gamers) {
+      this.gamers.changeGamersCount(data.count_gamers);
+    }
+    // this.saved_figures = data.saved_figures;
+    if (data.tyman.length !== this.tyman.length) {
+      // this.tyman = data.tyman;
+    }
     if (this.c_image !== data.img) {
-      this.loadJson();
-      this.runWithTimeout(() => {
-        this.cs.init(document.querySelector('#canvas1')!);
-        this.canvasInit();
-      });
+      this.goTo(data.img, false);
     } else this.refreshCanvas();
   };
   connect() {
@@ -123,7 +124,8 @@ export class GameComponent {
       tyman: this.tyman,
       monsters: this.convertServerData(this.monsters.draw, true),
       gamers: this.convertServerData(this.gamers.draw),
-      saved_figures: this.saved_figures,
+      count_gamers: this.gamers.count,
+      // saved_figures: this.saved_figures,
     };
     console.log('Ushlo', d, JSON.stringify(this.gamers.draw));
     this.ws.emit('all', d);
@@ -172,7 +174,8 @@ export class GameComponent {
   }
   countGamers(n: number) {
     this.gamers.changeGamersCount(n);
-    localStorage.setItem('gamers', n + '');
+    this.send();
+    // localStorage.setItem('gamers', n + '');
   }
   fullscreen = false;
   toggleFullscreen() {
@@ -506,7 +509,7 @@ export class GameComponent {
     this.refreshCanvas();
     this.send();
   }
-  goTo(i: string) {
+  goTo(i: string, send = true) {
     this.c_image = i;
     this.loadJson();
     this.canvasInit();
@@ -516,7 +519,7 @@ export class GameComponent {
     Object.keys(this.gamers.draw).forEach((e) => {
       delete this.gamers.draw[e];
     });
-    this.send();
+    if (send) this.send();
   }
   eraser() {
     const tmp = !this.erase;
@@ -650,5 +653,6 @@ interface ISocketData {
   img: string;
   monsters: any;
   gamers: any;
-  saved_figures: { [i: string]: figure_coord[] };
+  count_gamers: number;
+  // saved_figures: { [i: string]: figure_coord[] };
 }
