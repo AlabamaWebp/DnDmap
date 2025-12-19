@@ -102,6 +102,7 @@ export class GameComponent {
     this.saved_figures = data.saved_figures;
     this.tyman = data.tyman;
     if (this.c_image !== data.img) {
+      this.c_image = data.img;
       this.loadJson();
       this.runWithTimeout(() => {
         this.cs.init(document.querySelector('#canvas1')!);
