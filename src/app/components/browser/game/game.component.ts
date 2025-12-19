@@ -235,6 +235,7 @@ export class GameComponent {
       const size = this.canvas_params.grid.size;
 
       let stop = false;
+      let send = false;
       if (
         !this.gamers.current &&
         !this.monsters.current &&
@@ -248,6 +249,7 @@ export class GameComponent {
             if (i != -1) {
               this.monsters.draw[e].splice(i, 1);
               stop = true;
+              send = true;
               break;
             }
           }
@@ -257,6 +259,7 @@ export class GameComponent {
             const i = this.coordObjFinder(Object.values(g), x, y, size);
             if (i != -1) {
               delete g[Object.keys(g)[i]];
+              send = true;
               stop = true;
             }
           }
@@ -311,6 +314,7 @@ export class GameComponent {
           } else {
             this.gamers.draw[this.current_fishka.color] = coord;
           }
+          send = true;
           this.current_fishka = undefined;
         }
       }
@@ -325,9 +329,9 @@ export class GameComponent {
       this.gamers.addToDraw();
       this.monsters.addToDraw();
       this.refreshCanvas();
+      if (send) this.send();
     }
     // TODO
-    this.send();
   }
   @HostListener('document:mouseup', [])
   canvUnclick() {
