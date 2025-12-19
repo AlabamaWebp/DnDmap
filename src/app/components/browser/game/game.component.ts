@@ -326,10 +326,9 @@ export class GameComponent {
           };
         else this.tmp_figure.to = { x: x, y: y };
       }
-      this.gamers.addToDraw();
-      this.monsters.addToDraw();
+      const send2 = this.gamers.addToDraw() || this.monsters.addToDraw();
       this.refreshCanvas();
-      if (send) this.send();
+      if (send || send2) this.send();
     }
     // TODO
   }
@@ -609,11 +608,13 @@ class Gamers extends fishki {
     this.all = this.all_backup.slice(0, n);
   }
   addToDraw() {
+    const tmp = !!this.current;
     if (this.current) {
       this.draw[this.current] = this.tmp!;
       this.current = undefined;
       this.tmp = undefined;
     }
+    return tmp;
   }
   all_backup: string[];
   draw: { [i: string]: ICoords } = {};
@@ -629,11 +630,13 @@ class monster extends fishki {
   }
   draw: { [i: string]: ICoords[] } = {};
   addToDraw() {
+    const tmp = this.current;
     if (this.current) {
       this.draw[this.current].push(this.tmp!);
       this.current = undefined;
       this.tmp = undefined;
     }
+    return tmp;
   }
 }
 class fishka {
